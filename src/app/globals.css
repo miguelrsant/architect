@@ -57,6 +57,13 @@ article[id] {
   scroll-margin-top: calc(var(--nav-h) + 12px);
 }
 
+/* <picture> das ilustrações de fundo: ocupa a camada inteira, e o <img> (fill) se ajusta a ela.
+   Fica fora do fluxo para o <source> não virar item de grid ou flex. */
+.fill-picture {
+  position: absolute;
+  inset: 0;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

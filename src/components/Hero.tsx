@@ -3,11 +3,19 @@
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import noite from '@/assets/sao-paulo-2080-noite.jpg';
+import noiteRetrato from '@/assets/sao-paulo-2080-noite-retrato.jpg';
 import porDoSol from '@/assets/sao-paulo-2080-por-do-sol.jpg';
+import porDoSolRetrato from '@/assets/sao-paulo-2080-por-do-sol-retrato.jpg';
 import { copy } from '@/content/copy.pt-BR';
 import { dayNight, heroProgress, smoothstep } from '@/lib/daynight';
 import { Meta } from './Meta';
+import { TallSource } from './TallSource';
 import styles from './Hero.module.css';
+
+// Largura com que a ilustração aparece: a moldura passa da tela (parallax) e a imagem
+// cobre pela altura quando a tela é mais estreita que ~2:1 (deitada) ou ~4:5 (em pé, recorte 3:4).
+const SIZES = '(max-aspect-ratio: 49/25) 202vh, 106vw';
+const SIZES_EM_PE = '(max-aspect-ratio: 4/5) 87vh, 106vw';
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -26,7 +34,6 @@ export function Hero() {
       hero.style.setProperty('--p', smoothstep(p).toFixed(4));
       hero.style.setProperty('--night', night.toFixed(3));
       hero.style.setProperty('--glow', glow.toFixed(3));
-      hero.style.setProperty('--fade', (0.45 + p * 0.55).toFixed(3));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -52,25 +59,33 @@ export function Hero() {
     <section className={styles.hero} id="top" ref={ref} aria-labelledby="hero-titulo">
       <div className={styles.art}>
         <div className={styles.stack}>
-          <Image
-            src={porDoSol}
-            alt={copy.hero.alt}
-            fill
-            sizes="100vw"
-            quality={85}
-            preload
-            placeholder="blur"
-            className={styles.img}
-          />
-          <Image
-            src={noite}
-            alt=""
-            aria-hidden="true"
-            fill
-            sizes="100vw"
-            quality={85}
-            className={`${styles.img} ${styles.night}`}
-          />
+          <picture className="fill-picture">
+            <TallSource src={porDoSolRetrato} sizes={SIZES_EM_PE} />
+            <Image
+              src={porDoSol}
+              alt={copy.hero.alt}
+              fill
+              sizes={SIZES}
+              quality={85}
+              loading="eager"
+              fetchPriority="high"
+              placeholder="blur"
+              className={styles.img}
+            />
+          </picture>
+          <picture className="fill-picture">
+            <TallSource src={noiteRetrato} sizes={SIZES_EM_PE} />
+            <Image
+              src={noite}
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes={SIZES}
+              quality={85}
+              fetchPriority="low"
+              className={`${styles.img} ${styles.night}`}
+            />
+          </picture>
         </div>
       </div>
       <div className={styles.dusk} aria-hidden="true" />

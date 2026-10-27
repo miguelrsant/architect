@@ -22,6 +22,13 @@ export function SceneMap() {
   const t = copy.mapa;
   const [aberto, setAberto] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const pan = useRef<HTMLDivElement>(null);
+
+  // No celular a cena fica maior que a tela e rola para os lados: começa pelo meio (MASP e Ponte).
+  useEffect(() => {
+    const el = pan.current;
+    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = (el.scrollWidth - el.clientWidth) * 0.45;
+  }, []);
 
   // Fecha com Esc ou com um toque fora do mapa.
   useEffect(() => {
@@ -64,37 +71,42 @@ export function SceneMap() {
       <div className={styles.frame}>
         <div className={styles.map} ref={ref}>
           {/* Os pontos ficam numa camada do tamanho exato da imagem; o cartão vem depois dela. */}
-          <div className={styles.stage}>
-            <div className={styles.art}>
-              <Image
-                src={porDoSol}
-                alt={t.alt}
-                fill
-                sizes="(max-width: 1352px) 100vw, 1320px"
-                placeholder="blur"
-                className={styles.img}
-              />
+          <div className={styles.pan} ref={pan}>
+            <div className={styles.stage}>
+              <div className={styles.art}>
+                <Image
+                  src={porDoSol}
+                  alt={t.alt}
+                  fill
+                  sizes="(max-width: 720px) 780px, (max-width: 1352px) 100vw, 1320px"
+                  placeholder="blur"
+                  className={styles.img}
+                />
+              </div>
+              {t.pontos.map((p) => {
+                const open = aberto === p.n;
+                return (
+                  <button
+                    key={p.n}
+                    type="button"
+                    className={[styles.pin, p.selo === 'existe' ? styles.real : styles.future, open && styles.open]
+                      .filter(Boolean)
+                      .join(' ')}
+                    style={position(p)}
+                    aria-expanded={open}
+                    aria-controls={open ? CARD_ID : undefined}
+                    aria-label={`${p.n}. ${p.nome} (${selo(p)})`}
+                    onClick={() => setAberto(open ? null : p.n)}
+                  >
+                    {p.n}
+                  </button>
+                );
+              })}
             </div>
-            {t.pontos.map((p) => {
-              const open = aberto === p.n;
-              return (
-                <button
-                  key={p.n}
-                  type="button"
-                  className={[styles.pin, p.selo === 'existe' ? styles.real : styles.future, open && styles.open]
-                    .filter(Boolean)
-                    .join(' ')}
-                  style={position(p)}
-                  aria-expanded={open}
-                  aria-controls={open ? CARD_ID : undefined}
-                  aria-label={`${p.n}. ${p.nome} (${selo(p)})`}
-                  onClick={() => setAberto(open ? null : p.n)}
-                >
-                  {p.n}
-                </button>
-              );
-            })}
           </div>
+          <p className={styles.hint} aria-hidden="true">
+            <span>←</span> {t.arraste} <span>→</span>
+          </p>
           {ponto && (
             <div id={CARD_ID} className={`${styles.card} ${cardPlacement(ponto)}`} style={position(ponto)}>
               <span className={`chip ${ponto.selo === 'existe' ? 'chip-real' : 'chip-future'}`}>{selo(ponto)}</span>

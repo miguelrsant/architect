@@ -39,6 +39,13 @@
   text-wrap: balance;
 }
 
+/* No celular a capa já termina em preto: o texto começa mais perto dela */
+@media (max-width: 720px) {
+  .manifesto {
+    padding-block: var(--space-6) var(--space-9);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .word {
     opacity: 1;

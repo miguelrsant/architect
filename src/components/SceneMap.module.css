@@ -28,8 +28,16 @@
   position: relative;
 }
 
+.pan {
+  position: relative;
+}
+
 .stage {
   position: relative;
+}
+
+.hint {
+  display: none;
 }
 
 .art {
@@ -185,13 +193,56 @@
   background: rgba(244, 241, 250, .08);
 }
 
-/* No celular os pontos ficam menores e o cartão desce para baixo da imagem */
+/* No celular a cena fica alta o bastante para ler os detalhes, ocupa a largura toda
+   e rola para os lados; o cartão desce para baixo da imagem. */
 @media (max-width: 720px) {
+  .frame {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .pan {
+    --h: min(56svh, 440px);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    border-block: 1px solid var(--line);
+  }
+
+  .pan::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stage {
+    width: calc(var(--h) * 2560 / 1429);
+  }
+
+  .art {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   .pin {
-    width: 26px;
-    height: 26px;
-    margin: -13px 0 0 -13px;
-    font-size: 12px;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    font-size: 13px;
+  }
+
+  .hint {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: var(--space-3) 16px 0;
+    font: 400 11px/1.4 var(--font-mono);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--mute);
+  }
+
+  .hint span {
+    color: var(--signal-red);
   }
 
   .card {
@@ -199,7 +250,7 @@
     left: auto;
     top: auto;
     width: auto;
-    margin-top: var(--space-3);
+    margin: var(--space-3) 16px 0;
     translate: none;
   }
 }

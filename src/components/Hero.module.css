@@ -1,4 +1,4 @@
-/* --p (0→1 no scroll), --night, --glow e --fade vêm do Hero.tsx; --mx/--my do ponteiro. */
+/* --p (0→1 no scroll), --night e --glow vêm do Hero.tsx; --mx/--my do ponteiro. */
 .hero {
   --p: 0;
   --night: 0;
@@ -63,13 +63,20 @@
   pointer-events: none;
 }
 
-/* A base some no preto da página */
+/* A base sempre se dissolve no preto da página, em qualquer ponto do scroll:
+   a capa não termina numa linha reta. Rolando, o escuro sobe um pouco mais. */
 .fade {
   position: absolute;
-  inset: auto 0 0 0;
-  height: 55%;
-  background: linear-gradient(180deg, rgba(7, 7, 11, 0) 0%, rgba(7, 7, 11, .55) 55%, var(--night-000) 100%);
-  opacity: var(--fade, .45);
+  inset: auto 0 -4px 0; /* passa um pouco da borda: sem fresta de 1px quando a camada escala */
+  height: 58%;
+  background: linear-gradient(180deg,
+    rgba(7, 7, 11, 0) 0%,
+    rgba(7, 7, 11, .2) 30%,
+    rgba(7, 7, 11, .58) 60%,
+    rgba(7, 7, 11, .88) 82%,
+    var(--night-000) 96%);
+  transform-origin: bottom;
+  transform: scaleY(calc(1 + var(--p) * .5));
   pointer-events: none;
 }
 
@@ -104,4 +111,27 @@
   justify-content: center;
   color: #fff;
   text-shadow: 0 1px 2px rgba(8, 8, 24, .9), 0 0 16px rgba(8, 8, 24, .75);
+}
+
+/* Telas em pé: recorte vertical da ilustração, com a Ponte e o sol perto do centro */
+@media (max-aspect-ratio: 1/1) {
+  .img {
+    object-position: 72% 50%;
+  }
+}
+
+/* Celular: o terceiro item da linha de metadados desce inteiro, sem quadrado sobrando no fim da linha */
+@media (max-width: 520px) {
+  .meta {
+    row-gap: 10px;
+  }
+
+  .meta i:nth-of-type(2) {
+    display: none;
+  }
+
+  .meta span:last-of-type {
+    flex-basis: 100%;
+    text-align: center;
+  }
 }

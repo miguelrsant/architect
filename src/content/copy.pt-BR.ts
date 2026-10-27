@@ -247,6 +247,7 @@ export const copy = {
     alt: 'A ilustração de São Paulo 2080 ao pôr do sol, com oito pontos numerados por cima.',
     irPara: 'Ler o capítulo',
     fechar: 'Fechar',
+    arraste: 'Arraste para ver a cena inteira',
     pontos,
   },
   faq: {

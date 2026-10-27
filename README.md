@@ -43,7 +43,7 @@ npm run dev        # http://localhost:3000
 | `npm run lint` | ESLint com as regras do Next.js |
 | `npm run typecheck` | checagem de tipos |
 | `npm test` | testes de unidade (vitest): textos e números do roteiro, pontos do mapa, curva do pôr do sol à noite e rota do formulário |
-| `npm run e2e` | testes no Chrome (faz o build e sobe o servidor sozinho): console sem erros, crédito do rodapé, botão Hoje/2080, mapa e formulário |
+| `npm run e2e` | testes no Chrome (faz o build e sobe o servidor sozinho): console sem erros, crédito do rodapé, botão Hoje/2080, mapa e formulário; no tamanho de um celular, recorte vertical da capa, saída para o preto em qualquer ponto do scroll e mapa que rola para os lados |
 | `npm run shots` | refaz as imagens deste README em `docs/` (com `npm start` rodando) |
 
 ## Onde mexer
@@ -53,8 +53,8 @@ npm run dev        # http://localhost:3000
 | `src/content/copy.pt-BR.ts` | **todos os textos** do site: capa, manifesto, capítulos (texto de hoje, texto de 2080, ficha e fontes), pontos do mapa, perguntas e formulário |
 | `src/content/brand.ts` | nome do projeto e crédito do rodapé: nome, logo, link para miguelrsant.com.br, redes e repositório |
 | `src/styles/tokens.css` | o design system: paleta, fontes, espaçamentos, raios, curvas e sombras |
-| `src/assets/` | as duas ilustrações (pôr do sol e noite) e os recortes de cada prédio |
-| `src/components/` | uma seção por componente, cada uma com o seu CSS Module |
+| `src/assets/` | as duas ilustrações (pôr do sol e noite), os recortes verticais delas para telas em pé (`*-retrato.jpg`) e os recortes de cada prédio |
+| `src/components/` | uma seção por componente, cada uma com o seu CSS Module; `TallSource.tsx` troca a ilustração larga pelo recorte vertical em telas em pé |
 | `src/lib/daynight.ts` | as curvas do scroll: pôr do sol → noite na capa e palavras acesas no manifesto |
 | `src/app/api/inscricao/route.ts` | recebe o e-mail do formulário e repassa para o serviço configurado |
 | `public/brand/` | logo da marca (M preto e M claro, fundo transparente) e ícones PNG (Android) |
@@ -71,16 +71,17 @@ Os pontos do mapa ficam em `copy.mapa.pontos`, com `x` e `y` em porcentagem da i
 
 ## Como funciona (resumo)
 
-- **Pôr do sol → noite no scroll.** As duas ilustrações ficam empilhadas. A cada quadro (`requestAnimationFrame`), a capa calcula quanto já rolou e grava variáveis CSS (`--night`, `--glow`, `--fade`); o CSS faz a transição. Nada passa pelo estado do React, então rolar não causa re-render.
+- **Pôr do sol → noite no scroll.** As duas ilustrações ficam empilhadas. A cada quadro (`requestAnimationFrame`), a capa calcula quanto já rolou e grava variáveis CSS (`--p`, `--night`, `--glow`); o CSS faz a transição. Nada passa pelo estado do React, então rolar não causa re-render. A base da capa se dissolve sempre no preto da página, em qualquer ponto do scroll, e o escuro sobe um pouco conforme a página rola.
 - **Manifesto que acende.** Cada palavra é um `span`, e `litWords` decide quantas já estão acesas pela posição do bloco na tela.
 - **Hoje / 2080.** Cada capítulo tem os dois recortes e os dois textos no mesmo lugar. O botão (`aria-pressed`) troca qual aparece; o texto escondido fica `inert` e fora da leitura de tela.
-- **Mapa da cena.** Oito pontos sobre a ilustração: cinco com o selo "Existe" (verde) e três com "2080" (lilás). O cartão abre para o lado que cabe na imagem, fecha com Esc ou com um clique fora, e os pontos dos prédios levam ao capítulo. No celular, o cartão vai para baixo da imagem.
+- **Mapa da cena.** Oito pontos sobre a ilustração: cinco com o selo "Existe" (verde) e três com "2080" (lilás). O cartão abre para o lado que cabe na imagem, fecha com Esc ou com um clique fora, e os pontos dos prédios levam ao capítulo. No celular, a cena ocupa a largura toda numa altura em que os detalhes aparecem e rola para os lados (começa pelo MASP e pela Ponte); o cartão vai para baixo da imagem.
 - **Servidor e navegador.** Só seis componentes rodam no navegador (capa, menu, manifesto, capítulo, mapa e formulário). O resto é renderizado no servidor, e a página sai estática no build.
 - **Acessibilidade.** Cada ilustração tem texto alternativo, a faixa que corre no topo tem uma versão parada para leitores de tela, e quem pede menos movimento (`prefers-reduced-motion`) vê a capa sem animação.
 
 ## Desempenho
 
-- **Imagens:** `next/image` entrega AVIF ou WebP no tamanho da tela, com um placeholder borrado embutido no HTML. Só a ilustração da capa é pré-carregada; o resto carrega perto da tela.
+- **Imagens:** `next/image` entrega AVIF ou WebP no tamanho da tela, com um placeholder borrado embutido no HTML. O `sizes` de cada ilustração segue a largura com que ela aparece de fato (na capa ela cobre a tela pela altura), então o navegador não estica uma imagem pequena. A capa vem com prioridade alta e sem preload, para o celular não baixar também a versão larga; o resto carrega perto da tela.
+- **Celular:** em telas em pé, a capa e o final usam um recorte vertical 3:4 da ilustração (`<picture>` com `TallSource`). Os recortes e as imagens dos capítulos foram ampliados 2× com IA (Real-ESRGAN) e ganharam de volta o grão da arte; um celular comum recebe a capa com ~2.000 px de largura (~240 KB em AVIF).
 - **Fontes:** Instrument Serif, Newsreader, Geist e JetBrains Mono são servidas pelo próprio site (`next/font`), sem pedido ao Google e sem salto de layout.
 - **JavaScript:** o código do site soma ~14 KB gzip; o resto (~170 KB) é o runtime do React e do Next.js. Os efeitos de scroll não usam biblioteca de animação.
 - **Build:** Next.js 16 com Turbopack e Cache Components. A página é pré-renderizada, e só `/api/inscricao` roda sob demanda.
