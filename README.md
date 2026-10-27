@@ -43,7 +43,7 @@ npm run dev        # http://localhost:3000
 | `npm run lint` | ESLint com as regras do Next.js |
 | `npm run typecheck` | checagem de tipos |
 | `npm test` | testes de unidade (vitest): textos e números do roteiro, pontos do mapa, curva do pôr do sol à noite e rota do formulário |
-| `npm run e2e` | testes no Chrome (faz o build e sobe o servidor sozinho): console sem erros, crédito do rodapé, botão Hoje/2080, mapa e formulário; no tamanho de um celular, recorte vertical da capa, saída para o preto em qualquer ponto do scroll e mapa que rola para os lados |
+| `npm run e2e` | testes no Chrome (faz o build e sobe o servidor sozinho): console sem erros, crédito do rodapé, botão Hoje/2080, mapa e formulário; no tamanho de um celular, recorte vertical da capa, saída para o preto em qualquer ponto do scroll e mapa em lista, sem rolar para os lados |
 | `npm run shots` | refaz as imagens deste README em `docs/` (com `npm start` rodando) |
 
 ## Onde mexer
@@ -74,7 +74,7 @@ Os pontos do mapa ficam em `copy.mapa.pontos`, com `x` e `y` em porcentagem da i
 - **Pôr do sol → noite no scroll.** As duas ilustrações ficam empilhadas. A cada quadro (`requestAnimationFrame`), a capa calcula quanto já rolou e grava variáveis CSS (`--p`, `--night`, `--glow`); o CSS faz a transição. Nada passa pelo estado do React, então rolar não causa re-render. A base da capa se dissolve sempre no preto da página, em qualquer ponto do scroll, e o escuro sobe um pouco conforme a página rola.
 - **Manifesto que acende.** Cada palavra é um `span`, e `litWords` decide quantas já estão acesas pela posição do bloco na tela.
 - **Hoje / 2080.** Cada capítulo tem os dois recortes e os dois textos no mesmo lugar. O botão (`aria-pressed`) troca qual aparece; o texto escondido fica `inert` e fora da leitura de tela.
-- **Mapa da cena.** Oito pontos sobre a ilustração: cinco com o selo "Existe" (verde) e três com "2080" (lilás). O cartão abre para o lado que cabe na imagem, fecha com Esc ou com um clique fora, e os pontos dos prédios levam ao capítulo. No celular, a cena ocupa a largura toda numa altura em que os detalhes aparecem e rola para os lados (começa pelo MASP e pela Ponte); o cartão vai para baixo da imagem.
+- **Mapa da cena.** Oito pontos sobre a ilustração: cinco com o selo "Existe" (verde) e três com "2080" (lilás). O cartão abre para o lado que cabe na imagem, fecha com Esc ou com um clique fora, e os pontos dos prédios levam ao capítulo. No celular em pé, nada rola para os lados: a cena cabe na largura da tela e fica parada no topo enquanto os pontos passam por baixo dela, em lista; o ponto da vez acende e a cena se aproxima dele (sem a aproximação para quem pede menos movimento).
 - **Servidor e navegador.** Só seis componentes rodam no navegador (capa, menu, manifesto, capítulo, mapa e formulário). O resto é renderizado no servidor, e a página sai estática no build.
 - **Acessibilidade.** Cada ilustração tem texto alternativo, a faixa que corre no topo tem uma versão parada para leitores de tela, e quem pede menos movimento (`prefers-reduced-motion`) vê a capa sem animação.
 

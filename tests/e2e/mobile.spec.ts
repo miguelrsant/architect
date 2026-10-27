@@ -50,19 +50,42 @@ test('celular: linha de metadados da capa sem quadrado sobrando', async ({ page 
   await expect(quadrados.nth(1)).toBeHidden();
 });
 
-test('celular: o mapa rola para os lados e o cartão abre embaixo', async ({ page }) => {
+test('celular: o mapa cabe na tela e a lista acende o ponto da vez, sem rolar para os lados', async ({ page }) => {
   await page.goto('/');
   const masp = page.getByRole('button', { name: /^2\. MASP/ });
   await masp.scrollIntoViewIfNeeded();
-  const pan = masp.locator('xpath=ancestor::div[contains(@class, "pan")][1]');
-  const medidas = await pan.evaluate((el) => ({ total: el.scrollWidth, tela: el.clientWidth, x: el.scrollLeft }));
-  expect(medidas.total).toBeGreaterThan(medidas.tela * 1.5);
-  expect(medidas.x).toBeGreaterThan(0);
-  await expect(page.getByText(/Arraste para ver a cena/)).toBeVisible();
+  const cena = masp.locator('xpath=ancestor::div[contains(@class, "view")][1]');
+  const medidas = await cena.evaluate((el) => ({
+    pagina: document.documentElement.scrollWidth,
+    tela: window.innerWidth,
+    cena: el.getBoundingClientRect().width,
+    rola: el.scrollWidth > el.clientWidth && getComputedStyle(el).overflowX !== 'hidden',
+  }));
+  expect(medidas.pagina).toBeLessThanOrEqual(medidas.tela);
+  expect(medidas.cena).toBeLessThanOrEqual(medidas.tela);
+  expect(medidas.rola).toBe(false);
 
+  const itens = page.locator('#mapa ol > li');
+  await expect(itens).toHaveCount(8);
+  await expect(itens.nth(1)).toContainText('O museu suspenso de Lina Bo Bardi');
+
+  // Tocar no 2 desce até o MASP na lista: o item fica logo abaixo da imagem, parada no topo, e os dois acendem.
   await masp.click();
-  const cartao = page.locator('#mapa-cartao');
-  await expect(cartao).toContainText('MASP');
-  const [mapa, card] = await Promise.all([pan.boundingBox(), cartao.boundingBox()]);
-  expect(card!.y).toBeGreaterThan(mapa!.y + mapa!.height);
+  const item = page.locator('#mapa-ponto-2');
+  const logoAbaixo = async () => {
+    const [v, i] = await Promise.all([cena.boundingBox(), item.boundingBox()]);
+    return v!.y < 64 && i!.y >= v!.y + v!.height - 1 && i!.y < v!.y + v!.height + 48;
+  };
+  await expect.poll(logoAbaixo).toBe(true);
+  await expect(item).toHaveAttribute('aria-current', 'true');
+  await expect(masp).toHaveAttribute('aria-current', 'true');
+
+  // Descendo pela lista, o ponto seguinte acende no lugar dele.
+  await page.evaluate(() => {
+    const [a, b] = ['mapa-ponto-2', 'mapa-ponto-3'].map((id) => document.getElementById(id)!.getBoundingClientRect().top);
+    window.scrollBy({ top: b - a, behavior: 'instant' });
+  });
+  await expect(page.locator('#mapa-ponto-3')).toHaveAttribute('aria-current', 'true');
+  await expect(masp).not.toHaveAttribute('aria-current');
+  await expect(item.getByRole('link', { name: /Ler o capítulo/ })).toHaveAttribute('href', '#masp');
 });
