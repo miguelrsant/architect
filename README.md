@@ -1,12 +1,12 @@
 <div align="center">
 
-<a href="https://arqatlas.vercel.app"><img src="docs/capa.jpg" alt="Capa do arqATLAS: São Paulo em 2080 ao pôr do sol, com o Copan, o MASP e a Ponte Estaiada sob um céu rosa, e o título Imagine. Projete. Habite." width="100%"></a>
+<a href="https://arqatlas-theta.vercel.app"><img src="docs/capa.jpg" alt="Capa do arqATLAS: São Paulo em 2080 ao pôr do sol, com o Copan, o MASP e a Ponte Estaiada sob um céu rosa, e o título Imagine. Projete. Habite." width="100%"></a>
 
 # arqATLAS
 
 **Imagine. Projete. Habite.**
 
-<a href="https://arqatlas.vercel.app"><img src="https://img.shields.io/badge/%E2%96%B6%20Ver%20projeto-EC3B46?style=for-the-badge" alt="Ver projeto" height="36"></a>
+<a href="https://arqatlas-theta.vercel.app"><img src="https://img.shields.io/badge/%E2%96%B6%20Ver%20projeto-EC3B46?style=for-the-badge" alt="Ver projeto" height="36"></a>
 
 <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js">
 <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React">
