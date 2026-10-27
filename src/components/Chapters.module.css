@@ -1,0 +1,196 @@
+.chapters {
+  padding-block: var(--space-9) var(--space-8);
+  border-top: 1px solid var(--line);
+}
+
+.list {
+  margin-top: var(--space-7);
+}
+
+.chapter {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+  padding-block: var(--space-8);
+}
+
+.chapter + .chapter {
+  border-top: 1px solid var(--line);
+}
+
+.reverse .figure {
+  order: 2;
+}
+
+/* Imagem: o recorte de pôr do sol, e por cima o de noite, que aparece em "2080" */
+.figure {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--night-100);
+  isolation: isolate;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.figure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(7, 7, 11, 0) 52%, rgba(7, 7, 11, .62) 100%);
+  pointer-events: none;
+}
+
+.img {
+  object-fit: cover;
+  transition: transform 1.6s var(--ease-out), opacity 1.2s var(--ease-inout);
+}
+
+.night {
+  opacity: 0;
+}
+
+.isFuture .night {
+  opacity: 1;
+}
+
+.isFuture .img {
+  transform: scale(1.04);
+}
+
+.verb {
+  position: absolute;
+  left: 20px;
+  bottom: 10px;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(46px, 6vw, 88px);
+  line-height: 1;
+  color: #fff;
+  text-shadow: var(--shadow-headline);
+  pointer-events: none;
+}
+
+/* Texto */
+.body {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 4.2vw, 58px);
+  line-height: 1;
+  letter-spacing: -.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.signature {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin: 0;
+}
+
+.toggle {
+  display: inline-flex;
+  justify-self: start;
+  gap: 4px;
+  padding: 4px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgba(244, 241, 250, .06);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.toggle button {
+  font: 500 13px/1 var(--font-sans);
+  min-width: 72px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--paper-dim);
+  cursor: pointer;
+  transition: background .25s, color .25s;
+}
+
+.toggle button:hover {
+  color: var(--paper);
+}
+
+.toggle button[aria-pressed="true"] {
+  background: var(--paper);
+  color: var(--night-000);
+}
+
+.texts {
+  display: grid;
+}
+
+.text {
+  grid-area: 1 / 1;
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity .45s var(--ease-out), transform .45s var(--ease-out), visibility 0s linear .45s;
+}
+
+.active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: .08s, .08s, 0s;
+}
+
+.text p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1.55;
+  max-width: 34em;
+  text-wrap: pretty;
+}
+
+.specs {
+  margin-top: var(--space-2);
+}
+
+.source {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.source a {
+  color: var(--paper-dim);
+  text-underline-offset: 3px;
+}
+
+.source a:hover {
+  color: var(--paper);
+}
+
+@media (max-width: 860px) {
+  .chapter {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    padding-block: var(--space-7);
+  }
+
+  .reverse .figure {
+    order: 0;
+  }
+}

@@ -1,0 +1,76 @@
+/* Tokens do design system arqATLAS. As cores da ilustração foram amostradas da cena de São Paulo 2080. */
+:root {
+  color-scheme: dark;
+
+  /* Céu de pôr do sol (ilustração) */
+  --dusk-violet: #5851AB;
+  --dusk-orchid: #9B54A5;
+  --dusk-pink: #EC6990;
+  --dusk-gold: #FBCC8A;
+  --sun-coral: #FF9377;
+  --cloud: #FFEBC9;
+  --cloud-shade: #A26EB2;
+
+  /* Céu da noite (ilustração) */
+  --night-sky: #1F285B;
+  --night-haze: #DE92B6;
+  --moon: #ECD2EF;
+
+  /* Fachadas */
+  --facade-lit: #FC93A0;
+  --facade-shade: #6E4F89;
+  --facade-deep: #45397A;
+  --ipe: #B35492;
+  --leaf: #6FBF7A;
+  --window-glow: #FFC48A;
+
+  /* Traço, destaque e sinal (vermelho só em CTA e separadores) */
+  --ink-navy: #1E2456;
+  --accent-pink: #F2A0D6;
+  --signal-red: #EC3B46;
+  --signal-red-hover: #FF5560;
+
+  /* Selos: o que existe e o que é imaginado */
+  --real: #A6E0AE;
+  --real-bg: rgba(111, 191, 122, .16);
+  --future: #C9B8FF;
+  --future-bg: rgba(140, 107, 224, .2);
+
+  /* Noite (interface) */
+  --night-000: #07070B;
+  --night-100: #100F18;
+  --night-200: #1A1925;
+  --night-300: #2A2838;
+  --paper: #F4F1FA;
+  --paper-dim: #B9B5CC;
+  --mute: #8A869E;
+  --line: rgba(244, 241, 250, .08);
+  --line-strong: rgba(244, 241, 250, .14);
+
+  /* Tipos (as variáveis --ff-* vêm do next/font em layout.tsx) */
+  --font-display: var(--ff-display), "Iowan Old Style", "Times New Roman", serif;
+  --font-serif: var(--ff-serif), Georgia, "Times New Roman", serif;
+  --font-sans: var(--ff-sans), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--ff-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Espaço, raio, movimento, sombra */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 144px;
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-pill: 999px;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-inout: cubic-bezier(.65, 0, .35, 1);
+  --shadow-headline: 0 3px 0 rgba(30, 36, 86, .35), 0 14px 34px rgba(8, 8, 24, .45);
+  --glow-red: 0 0 0 1px rgba(236, 59, 70, .5), 0 8px 30px rgba(236, 59, 70, .35);
+
+  --nav-h: 60px;
+}

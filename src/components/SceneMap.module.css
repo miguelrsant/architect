@@ -1,0 +1,205 @@
+.section {
+  padding-block: var(--space-9);
+  border-top: 1px solid var(--line);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-4) var(--space-6);
+  flex-wrap: wrap;
+}
+
+.legend {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.frame {
+  max-width: 1352px;
+  margin: var(--space-7) auto 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+.map {
+  position: relative;
+}
+
+.stage {
+  position: relative;
+}
+
+.art {
+  position: relative;
+  aspect-ratio: 2560 / 1429;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.img {
+  object-fit: cover;
+}
+
+/* Pontos numerados: verde = existe, lilás = 2080 */
+.real {
+  --ring: var(--real);
+}
+
+.future {
+  --ring: var(--future);
+}
+
+.pin {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 600 14px/1 var(--font-mono);
+  color: #fff;
+  background: rgba(7, 7, 11, .74);
+  box-shadow: 0 0 0 2px var(--ring), 0 6px 18px rgba(7, 7, 11, .45);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: transform .3s var(--ease-out), background .3s, color .3s;
+}
+
+.pin::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--ring);
+  opacity: 0;
+  animation: ping 3.2s var(--ease-out) infinite;
+  animation-delay: calc(var(--i) * .4s);
+  pointer-events: none;
+}
+
+.pin:hover,
+.open {
+  transform: scale(1.12);
+  background: var(--ring);
+  color: var(--night-000);
+}
+
+.open::after {
+  animation: none;
+}
+
+@keyframes ping {
+  0% { opacity: .9; transform: scale(1); }
+  70%, 100% { opacity: 0; transform: scale(1.8); }
+}
+
+/* Cartão de duas linhas, preso ao ponto */
+.card {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 3;
+  width: min(300px, 78vw);
+  display: grid;
+  gap: 6px;
+  padding: 16px 40px 16px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(16, 15, 24, .95);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .5);
+  backdrop-filter: blur(10px);
+  translate: var(--tx) var(--ty);
+  animation: pop .35s var(--ease-out);
+}
+
+.alignStart { --tx: -28px; }
+.alignCenter { --tx: -50%; }
+.alignEnd { --tx: calc(-100% + 28px); }
+.below { --ty: 30px; }
+.above { --ty: calc(-100% - 30px); }
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(.96); }
+  to { opacity: 1; transform: none; }
+}
+
+.cardTitle {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.05;
+}
+
+.cardNumber {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--mute);
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.cardText {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--paper-dim);
+}
+
+.cardLink {
+  justify-self: start;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--paper);
+  text-underline-offset: 3px;
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--mute);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--paper);
+  background: rgba(244, 241, 250, .08);
+}
+
+/* No celular os pontos ficam menores e o cartão desce para baixo da imagem */
+@media (max-width: 720px) {
+  .pin {
+    width: 26px;
+    height: 26px;
+    margin: -13px 0 0 -13px;
+    font-size: 12px;
+  }
+
+  .card {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    margin-top: var(--space-3);
+    translate: none;
+  }
+}

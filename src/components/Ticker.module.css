@@ -1,0 +1,35 @@
+.ticker {
+  position: relative;
+  z-index: 51;
+  background: var(--night-000);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  height: 28px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.track {
+  display: flex;
+  flex: none;
+  white-space: nowrap;
+  animation: marquee 42s linear infinite;
+}
+
+.track span {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 14px;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}

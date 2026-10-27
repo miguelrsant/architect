@@ -1,0 +1,154 @@
+.footer {
+  padding-block: var(--space-8) var(--space-6);
+  border-top: 1px solid var(--line);
+  color: var(--paper-dim);
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+.about p,
+.text {
+  margin: var(--space-2) 0 0;
+  line-height: 1.6;
+}
+
+.wordmark {
+  font-size: 18px;
+  text-decoration: none;
+  color: var(--paper);
+}
+
+.wordmark span {
+  opacity: .8;
+}
+
+.wordmark b {
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.sources {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.sources a {
+  color: var(--paper);
+  text-underline-offset: 3px;
+}
+
+.sources span {
+  color: var(--mute);
+}
+
+/* Crédito de quem fez o site: logo + nome levam para miguelrsant.com.br */
+.creditRow {
+  margin-top: var(--space-8);
+  border-top: 1px solid var(--line);
+}
+
+.credit {
+  padding-top: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.dev {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 10px 18px 10px 10px;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  color: var(--paper);
+  background: rgba(244, 241, 250, .04);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  transition: background .25s, box-shadow .25s;
+}
+
+.dev:hover {
+  background: rgba(244, 241, 250, .08);
+  box-shadow: inset 0 0 0 1px rgba(242, 160, 214, .45);
+}
+
+.logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--night-200);
+}
+
+.devName {
+  display: grid;
+  line-height: 1.1;
+}
+
+.devName small {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.devName strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+}
+
+.site {
+  font-size: 13px;
+  color: var(--paper-dim);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--line-strong);
+}
+
+.social {
+  display: flex;
+  gap: var(--space-5);
+  font-size: 13px;
+}
+
+.social a {
+  text-decoration: none;
+  color: var(--paper-dim);
+}
+
+.social a:hover {
+  color: var(--paper);
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .site {
+    display: none;
+  }
+}
