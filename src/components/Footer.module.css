@@ -32,6 +32,19 @@
   letter-spacing: .02em;
 }
 
+.pages {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.pages a {
+  color: var(--paper);
+  text-underline-offset: 3px;
+  padding-block: 4px;
+}
+
 .label {
   margin: 0;
   font-family: var(--font-mono);

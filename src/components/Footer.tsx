@@ -1,6 +1,8 @@
+import Link from 'next/link';
 import Image from 'next/image';
 import { brand, project } from '@/content/brand';
 import { copy } from '@/content/copy.pt-BR';
+import { pages } from '@/content/site';
 import styles from './Footer.module.css';
 
 const externo = { target: '_blank', rel: 'noopener noreferrer' } as const;
@@ -20,11 +22,18 @@ export function Footer() {
     <footer className={styles.footer}>
       <div className={`wrap ${styles.grid}`}>
         <div className={styles.about}>
-          <a className={styles.wordmark} href="#top" aria-label={copy.nav.voltar}>
+          <Link className={styles.wordmark} href="/#top" aria-label={copy.nav.voltar}>
             <span>{project.wordmark.light}</span>
             <b>{project.wordmark.bold}</b>
-          </a>
+          </Link>
           <p>{t.sobre}</p>
+          <nav className={styles.pages} aria-label={t.paginas}>
+            {pages.map((p) => (
+              <a key={p.path} href={p.path}>
+                {p.eyebrow}
+              </a>
+            ))}
+          </nav>
         </div>
         <div>
           <p className={styles.label}>{t.imagensTitulo}</p>
@@ -50,7 +59,7 @@ export function Footer() {
           <a className={styles.dev} href={brand.url} {...externo}>
             <Image src={brand.logoSrc} alt={brand.logoAlt} width={48} height={48} className={styles.logo} />
             <span className={styles.devName}>
-              <small>{t.feitoPor}</small>
+              <small>{t.desenvolvidoPor}</small>
               <strong>{brand.author}</strong>
             </span>
             <span className={styles.site}>
@@ -58,6 +67,9 @@ export function Footer() {
             </span>
           </a>
           <nav className={styles.social} aria-label={t.redes}>
+            <a href={brand.instagram} {...externo}>
+              Instagram
+            </a>
             <a href={brand.linkedin} {...externo}>
               LinkedIn
             </a>

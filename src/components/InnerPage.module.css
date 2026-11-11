@@ -1,0 +1,143 @@
+/* Páginas internas (Sobre, Contato, Privacidade) e a 404: coluna de leitura sobre a noite. */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(7, 7, 11, .86);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.barIn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 64px;
+}
+
+.wordmark {
+  font-size: 18px;
+  text-decoration: none;
+  color: var(--paper);
+}
+
+.wordmark span {
+  opacity: .8;
+}
+
+.wordmark b {
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.back {
+  font-size: 14px;
+  color: var(--paper-dim);
+  text-decoration: none;
+  padding: 10px 0;
+}
+
+.back:hover {
+  color: var(--paper);
+}
+
+.main {
+  padding-block: var(--space-9) var(--space-9);
+  max-width: 760px;
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent-pink);
+}
+
+.h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(40px, 7vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -.01em;
+}
+
+.lead {
+  margin: var(--space-5) 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 2.2vw, 22px);
+  line-height: 1.5;
+  color: var(--paper-dim);
+}
+
+.block {
+  margin-top: var(--space-7);
+}
+
+.block h2 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3.4vw, 34px);
+  line-height: 1.15;
+}
+
+.block p,
+.block li {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--paper-dim);
+  overflow-wrap: anywhere;
+}
+
+.block p {
+  margin: 0 0 var(--space-4);
+}
+
+.block ul {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.block li::marker {
+  color: var(--signal-red);
+}
+
+.block a {
+  color: var(--paper);
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-pink);
+}
+
+.cta {
+  margin: var(--space-8) 0 0;
+}
+
+.code {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: var(--accent-pink);
+}
+
+.links {
+  list-style: none;
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  font-size: 15px;
+}
+
+.links a {
+  color: var(--paper);
+  text-underline-offset: 3px;
+}

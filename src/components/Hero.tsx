@@ -13,7 +13,9 @@ import styles from './Hero.module.css';
 // Largura com que a ilustração aparece: a moldura passa da tela (parallax) e a imagem
 // cobre pela altura quando a tela é mais estreita que ~2:1 (deitada) ou ~4:5 (em pé, recorte 3:4).
 const SIZES = '(max-aspect-ratio: 49/25) 202vh, 106vw';
-const SIZES_EM_PE = '(max-aspect-ratio: 4/5) 87vh, 106vw';
+// 82vh (e não os 87vh exatos) faz o celular comum pedir a versão de 1200px em vez da de 1920px: ~40% menos
+// bytes na imagem do LCP, com 5% de ampliação que o grão da arte esconde.
+const SIZES_EM_PE = '(max-aspect-ratio: 4/5) 82vh, 106vw';
 
 /** Abertura, ato 1 (Imagine): a Megacidade que a ficção sonhou, e o caminho do site no título. */
 export function Hero() {

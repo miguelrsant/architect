@@ -7,6 +7,9 @@ export const brand = {
   logoSrc: '/brand/miguelrsant-icon-light.svg',
   logoAlt: 'miguelrsant',
   linkedin: 'https://www.linkedin.com/in/miguelrsant',
+  instagram: 'https://www.instagram.com/miguelrsant/',
+  instagramHandle: '@miguelrsant',
+  email: 'miguelrsant01@gmail.com',
   github: 'https://github.com/miguelrsant',
   repo: 'https://github.com/miguelrsant/architect',
 } as const;

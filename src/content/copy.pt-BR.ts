@@ -116,7 +116,7 @@ const pontos: Ponto[] = [
 
 export const copy = {
   meta: {
-    title: 'arqATLAS · Imagine. Projete. Habite.',
+    title: 'arqATLAS · Atlas ilustrado do futuro das cidades',
     description:
       'Um atlas ilustrado do futuro das cidades: a megacidade que o cinema imaginou, uma torre feita de soluções que já existem e os prédios de São Paulo onde o futuro já mora.',
     nomeApp: 'Da ficção a São Paulo',
@@ -124,6 +124,7 @@ export const copy = {
   },
   nav: {
     voltar: 'arqATLAS, voltar ao topo',
+    voltarInicio: 'Ver o atlas',
     rotulo: 'Seções',
     links: [
       { label: 'Imagine', href: '#top' },
@@ -312,5 +313,7 @@ export const copy = {
     feitoPor: 'Feito por',
     redes: 'Miguel Angelo na web',
     codigo: 'Código do site',
+    paginas: 'Páginas do site',
+    desenvolvidoPor: 'Site desenvolvido por',
   },
 };
