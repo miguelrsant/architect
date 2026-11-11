@@ -2,6 +2,7 @@ import Image from 'next/image';
 import noite from '@/assets/sao-paulo-2080-noite.jpg';
 import noiteRetrato from '@/assets/sao-paulo-2080-noite-retrato.jpg';
 import { copy } from '@/content/copy.pt-BR';
+import { FinaleTitulo } from './FinaleTitulo';
 import { Meta } from './Meta';
 import { SignupForm } from './SignupForm';
 import { TallSource } from './TallSource';
@@ -11,6 +12,7 @@ import styles from './Finale.module.css';
 const SIZES = '(max-aspect-ratio: 3/2) 147vh, 100vw';
 const SIZES_EM_PE = '(max-aspect-ratio: 2/3) 70vh, 100vw';
 
+/** Ato final, o convite: São Paulo à noite, a frase que abre o site e o formulário. */
 export function Finale() {
   const t = copy.final;
   return (
@@ -22,9 +24,7 @@ export function Finale() {
       <div className={styles.night} aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
       <div className={styles.copy}>
-        <h2 className={`headline ${styles.title}`} id="receber-titulo">
-          {t.titulo}
-        </h2>
+        <FinaleTitulo linhas={t.titulo} id="receber-titulo" />
         <p className={styles.support}>{t.apoio}</p>
         <SignupForm />
         <Meta items={t.meta} className={styles.meta} />

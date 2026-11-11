@@ -371,6 +371,15 @@
     height: auto;
     border-radius: var(--radius-md);
   }
+
+  .paradoLargo {
+    width: min(1120px, calc(100% - 32px));
+  }
+
+  /* Habite parado: o pôr do sol no palco e a noite inteira depois dos cartões */
+  .habite .palco .noite {
+    opacity: 0;
+  }
 }
 
 /* Habite: a noite chega por cima do pôr do sol (--noite vem do Habite.tsx). Os prédios reais ficam

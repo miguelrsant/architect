@@ -3,11 +3,14 @@ import { Finale } from '@/components/Finale';
 import { Footer } from '@/components/Footer';
 import { Habite } from '@/components/Habite';
 import { Hero } from '@/components/Hero';
+import { Manifesto } from '@/components/Manifesto';
 import { Projete } from '@/components/Projete';
+import { SceneMap } from '@/components/SceneMap';
 import { Ticker } from '@/components/Ticker';
 import { Topbar } from '@/components/Topbar';
 
-// Roteiro "Do sonho à casa": Imagine (a Megacidade), Projete (a Torre se desenha) e Habite (São Paulo).
+// Roteiro "Do sonho à casa": Imagine (a Megacidade, a frase e o que a ficção acertou), Projete (a Torre se
+// desenha) e Habite (São Paulo do pôr do sol à noite), depois as perguntas e o convite.
 export default function Home() {
   return (
     <>
@@ -15,6 +18,8 @@ export default function Home() {
       <Topbar />
       <main>
         <Hero />
+        <Manifesto />
+        <SceneMap />
         <Projete />
         <Habite />
         <Faq />

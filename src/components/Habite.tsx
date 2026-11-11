@@ -12,7 +12,7 @@ import noite from '@/assets/sao-paulo-2080-noite.jpg';
 import noiteRetrato from '@/assets/sao-paulo-2080-noite-retrato.jpg';
 import porDoSol from '@/assets/sao-paulo-2080-por-do-sol.jpg';
 import porDoSolRetrato from '@/assets/sao-paulo-2080-por-do-sol-retrato.jpg';
-import { type Capitulo, copy } from '@/content/copy.pt-BR';
+import { copy, type Predio } from '@/content/copy.pt-BR';
 import { noiteHabite, QUADRO } from '@/lib/cena';
 import { Emphasis } from './Emphasis';
 import { marca } from './marca';
@@ -23,7 +23,7 @@ import styles from './Cena.module.css';
 const SIZES = '(max-aspect-ratio: 2560/1429) calc((100vh - 60px) * 1.8), 100vw';
 const SIZES_EM_PE = '(max-aspect-ratio: 87/200) 100vw, 44vh';
 
-const MINIATURAS: Record<Capitulo['id'], { dia: StaticImageData; noite: StaticImageData }> = {
+const MINIATURAS: Record<Predio, { dia: StaticImageData; noite: StaticImageData }> = {
   copan: { dia: copanDia, noite: copanNoite },
   masp: { dia: maspDia, noite: maspNoite },
   ponte: { dia: ponteDia, noite: ponteNoite },
@@ -114,6 +114,11 @@ export function Habite() {
           </li>
         </ol>
       </div>
+
+      {/* Movimento reduzido: a noite parada depois do pôr do sol, em vez de uma virar a outra (só baixa nesse modo). */}
+      <figure className={`${styles.parado} ${styles.paradoLargo}`}>
+        <Image src={noite} alt={t.altNoite} sizes="(max-width: 1152px) 100vw, 1120px" className={styles.paradoImg} />
+      </figure>
     </section>
   );
 }

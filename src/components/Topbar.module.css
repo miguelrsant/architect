@@ -61,6 +61,27 @@
   opacity: 1;
 }
 
+/* O ato da vez: aceso, com o quadradinho vermelho das etiquetas */
+.links a[aria-current] {
+  opacity: 1;
+}
+
+.links a::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  vertical-align: 2px;
+  background: var(--signal-red);
+  scale: 0;
+  transition: scale .3s var(--ease-out);
+}
+
+.links a[aria-current]::before {
+  scale: 1;
+}
+
 @media (max-width: 720px) {
   .links {
     display: none;

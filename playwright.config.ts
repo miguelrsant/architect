@@ -13,9 +13,12 @@ export default defineConfig({
     baseURL: `http://localhost:${port}`,
     headless: true,
     viewport: { width: 1440, height: 900 },
-    ...(process.env.CHROMIUM_PATH
-      ? { launchOptions: { executablePath: process.env.CHROMIUM_PATH } }
-      : { channel: 'chrome' }),
+    // O desenho da Torre usa WebGL: sem placa de vídeo (CI, servidor), ele roda no SwiftShader.
+    launchOptions: {
+      args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+      ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}),
+    },
+    ...(process.env.CHROMIUM_PATH ? {} : { channel: 'chrome' as const }),
   },
   webServer: {
     command: `npm run build && npm run start -- --port ${port}`,

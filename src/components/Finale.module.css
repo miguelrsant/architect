@@ -46,6 +46,24 @@
   font-size: clamp(46px, 7.4vw, 108px);
 }
 
+/* O título sobe por linha quando chega na tela (data-entrada vem do FinaleTitulo.tsx) */
+.linha {
+  display: block;
+}
+
+.title[data-entrada="espera"] .linha {
+  opacity: 0;
+}
+
+.title[data-entrada="vez"] .linha {
+  animation: subir .9s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 80ms);
+}
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(40px); }
+}
+
 .support {
   margin: 0;
   max-width: 30em;

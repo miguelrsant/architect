@@ -2,7 +2,9 @@
 
 O traço é o nanquim da arte (top-hat escuro: fechamento menos imagem). O tempo é a distância
 geodésica a partir da base da imagem, andando rápido pelo traço e devagar fora dele, então o
-desenho cresce pelas linhas, de baixo para cima. A cor sobe depois, por uma versão suave do tempo.
+desenho cresce pelas linhas, de baixo para cima. A cor sobe depois, por uma versão suave do tempo
+que só cresce de baixo para cima em cada coluna (nenhum pedaço de céu fica para trás, como ilha) e
+sem colunas atrasadas (nenhum fio de céu escuro fica pendurado no topo).
 O próprio traço o navegador tira da ilustração no sombreador (src/lib/traco-gl.ts): aqui saem só
 os dois campos de tempo, que pesam poucos KB.
 
@@ -66,6 +68,45 @@ def igualar(x: np.ndarray) -> np.ndarray:
     return np.interp(x, q, np.linspace(0, 1, 257)).astype(np.float32)
 
 
+def sem_ilhas(x: np.ndarray) -> np.ndarray:
+    """Em cada coluna, o valor só cresce de baixo para cima: o que ainda não tem cor sempre encosta no topo."""
+    return np.maximum.accumulate(x[::-1], axis=0)[::-1]
+
+
+def aparar_fios(x: np.ndarray, largura: int) -> np.ndarray:
+    """Abertura na horizontal (mínimo e depois máximo numa janela): uma coluna que demora mais que as
+    vizinhas, e é mais estreita que a janela, passa a ter o tempo delas. Mínimo e máximo de colunas que
+    só crescem para cima também só crescem para cima: continua sem ilhas."""
+    r = max(1, largura // 2)
+
+    def janela(v: np.ndarray, f) -> np.ndarray:
+        p = np.pad(v, ((0, 0), (r, r)), mode='edge')
+        return f(np.lib.stride_tricks.sliding_window_view(p, 2 * r + 1, axis=1), axis=-1)
+
+    return janela(janela(x, np.min), np.max)
+
+
+def rampa(altura: int) -> np.ndarray:
+    """De 0 na base a 1 no topo: somada ao tempo, desfaz os platôs (o trecho de coluna que ganharia cor de uma vez)."""
+    return np.linspace(1, 0, altura, dtype=np.float32)[:, None]
+
+
+def borrar(x: np.ndarray, raios: tuple[int, int], vezes: int = 3) -> np.ndarray:
+    """Média móvel separável (três passadas ~ gaussiana), raio na vertical e na horizontal.
+    Pesos positivos: não cria ilhas novas."""
+    for _ in range(vezes):
+        for eixo, raio in enumerate(raios):
+            pad = [(0, 0), (0, 0)]
+            pad[eixo] = (raio, raio)
+            c = np.cumsum(np.pad(x, pad, mode='edge'), axis=eixo, dtype=np.float64)
+            c = np.insert(c, 0, 0, axis=eixo)
+            n = x.shape[eixo]
+            fim = np.take(c, np.arange(2 * raio + 1, 2 * raio + 1 + n), axis=eixo)
+            ini = np.take(c, np.arange(0, n), axis=eixo)
+            x = ((fim - ini) / (2 * raio + 1)).astype(np.float32)
+    return x
+
+
 def suave(x: np.ndarray, fator: int) -> np.ndarray:
     h, w = x.shape
     im = Image.fromarray(x, mode='F').resize((max(1, w // fator), max(1, h // fator)), Image.BOX)
@@ -92,9 +133,15 @@ if __name__ == '__main__':
     m = np.asarray(Image.fromarray((linhas * 255).astype(np.uint8)).resize(pequeno, Image.BOX), dtype=np.float32) / 255
     m = np.clip(m * 1.6, 0, 1)
     t = tempo(m)
-    sobe = igualar(suave(t, 24))
+    # a cor só sobe; as colunas atrasadas, mais estreitas que 1/6 da largura, ganham o tempo das vizinhas
+    sobe = sem_ilhas(suave(t, 24))
+    sobe = aparar_fios(sobe, pequeno[0] // 6) + 0.15 * rampa(sobe.shape[0])
+    sobe = igualar(borrar(sobe, (3, max(4, pequeno[0] // 40))))
     salvar(t, pequeno, f'{prefixo}-tempo.webp', 92)
-    salvar(sobe, (pequeno[0] // 4, pequeno[1] // 4), f'{prefixo}-sobe.webp', 92)
+    # sem perda: a compressão com perda criaria pontinhos fora de ordem, que virariam ilhas de céu
+    reduzido = (pequeno[0] // 4, pequeno[1] // 4)
+    Image.fromarray(np.clip(sobe * 255 + 0.5, 0, 255).astype(np.uint8)).resize(reduzido, Image.BOX).save(
+        f'{prefixo}-sobe.webp', lossless=True, method=6)
     if '--desenho' in sys.argv:
         # linhas claras sobre o azul-noite da página, no tamanho do recorte original (1072 de largura)
         noite = np.array([7, 7, 11], np.float32) / 255

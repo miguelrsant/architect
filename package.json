@@ -2,7 +2,7 @@
   "name": "arqatlas",
   "version": "0.1.0",
   "private": true,
-  "description": "arqATLAS: um atlas ilustrado que explica prédios reais de São Paulo hoje e imagina cada um em 2080 (miguelrsant).",
+  "description": "arqATLAS: um atlas ilustrado de como uma cidade sai da imaginação e vira lugar para morar. Imagine, Projete, Habite (miguelrsant).",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

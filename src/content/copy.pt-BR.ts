@@ -1,6 +1,7 @@
 // Todos os textos do site. O conteúdo segue o documento "arqATLAS · novo conceito e roteiro" (conceito A, Do sonho à casa).
 
-export type Selo = 'existe' | '2080';
+/** Selo dos pontos da Megacidade: o que da ficção já chegou e o que ainda é sonho. */
+export type Selo = 'existe' | 'ficcao';
 
 /** Texto com um trecho em itálico rosa (o `destaque` precisa aparecer dentro do `texto`). */
 export interface Destaque {
@@ -13,36 +14,19 @@ export interface Fonte {
   url: string;
 }
 
-export interface ItemFicha {
-  rotulo: string;
-  valor: string;
-  unidade?: string;
-}
+/** Os três prédios reais de São Paulo do ato Habite. */
+export type Predio = 'copan' | 'masp' | 'ponte';
 
-export interface Capitulo {
-  id: 'copan' | 'masp' | 'ponte';
-  numero: string;
-  verbo: string;
-  predio: string;
-  assinatura: string;
-  titulo: Destaque;
-  hoje: string;
-  futuro: string;
-  ficha: ItemFicha[];
-  fontes: Fonte[];
-  /** Texto alternativo dos dois recortes da ilustração. */
-  imagem: { porDoSol: string; noite: string };
-}
-
+/** Ponto do mapa da Megacidade (o que a ficção acertou). */
 export interface Ponto {
   n: number;
   nome: string;
   selo: Selo;
   texto: string;
+  fonte?: Fonte;
   /** Posição na ilustração, em % da largura e da altura. */
   x: number;
   y: number;
-  capitulo?: Capitulo['id'];
 }
 
 /** Um ponto numa ilustração, em % da largura e da altura: na imagem larga e no recorte em pé. */
@@ -56,6 +40,8 @@ export interface Marca {
 export interface Nota {
   n: string;
   titulo: string;
+  /** O prédio real que já faz aquilo. */
+  referencia: string;
   rotulo: string;
   texto: string;
   fonte: Fonte;
@@ -64,7 +50,7 @@ export interface Nota {
 
 /** Cartão do ato Habite: um prédio de São Paulo e o número que ele carrega. */
 export interface Morada {
-  id: Capitulo['id'];
+  id: Predio;
   predio: string;
   assinatura: string;
   numero: string;
@@ -74,161 +60,67 @@ export interface Morada {
   marca: Marca;
 }
 
-const capitulos: Capitulo[] = [
-  {
-    id: 'copan',
-    numero: '01',
-    verbo: 'morar',
-    predio: 'Edifício Copan',
-    assinatura: 'Oscar Niemeyer · Centro de São Paulo',
-    titulo: { texto: 'Uma cidade inteira numa onda.', destaque: 'onda' },
-    hoje: 'Oscar Niemeyer desenhou o Copan em 1951, e os primeiros moradores chegaram em 1963. São 1.160 apartamentos, 140 metros de altura e 72 lojas no térreo, abertas para a rua. As faixas horizontais de concreto fazem sombra e desenham a curva.',
-    futuro:
-      'As faixas de concreto ganham painéis solares e floreiras. O térreo vira uma praça coberta, aberta dia e noite, e o topo ganha uma horta com mirante público.',
-    ficha: [
-      { rotulo: 'Altura', valor: '140', unidade: 'm' },
-      { rotulo: 'Andares', valor: '37' },
-      { rotulo: 'Apartamentos', valor: '1.160' },
-      { rotulo: 'Área construída', valor: '116.152', unidade: 'm²' },
-    ],
-    fontes: [{ nome: 'Assembleia Legislativa de SP', url: 'https://www.al.sp.gov.br/noticia/?id=313140' }],
-    imagem: {
-      porDoSol:
-        'Recorte da ilustração: o Copan ao pôr do sol, uma lâmina curva com faixas horizontais de concreto entre nuvens douradas.',
-      noite: 'O mesmo recorte à noite: o Copan com as faixas de janelas acesas.',
-    },
-  },
-  {
-    id: 'masp',
-    numero: '02',
-    verbo: 'encontrar',
-    predio: 'MASP',
-    assinatura: 'Lina Bo Bardi · Avenida Paulista',
-    titulo: { texto: 'Um museu que deu a praça para a cidade.', destaque: 'praça' },
-    hoje: 'Lina Bo Bardi pendurou a caixa do museu em vigas de concreto protendido sobre quatro pilares, deixando um vão livre de 74 metros. O prédio abriu em 7 de novembro de 1968, e o vão virou praça coberta para encontros, cultura e manifestações. Lá dentro, as obras ficam soltas em cavaletes de cristal.',
-    futuro:
-      'O vão livre vira a sala de estar da cidade, com sombra, água e bancos. À noite, a fachada de vidro acende e mostra as obras para quem passa na Paulista.',
-    ficha: [
-      { rotulo: 'Vão livre', valor: '74', unidade: 'm' },
-      { rotulo: 'Pilares', valor: '4' },
-      { rotulo: 'Acervo', valor: '+11 mil', unidade: 'obras' },
-      { rotulo: 'Prédios', valor: '2', unidade: 'desde 2025' },
-    ],
-    fontes: [
-      {
-        nome: 'Correio Braziliense',
-        url: 'https://www.correiobraziliense.com.br/cbradar/como-foi-construido-o-vao-livre-do-masp/',
-      },
-      {
-        nome: 'Portal Tela',
-        url: 'https://www.portaltela.com/noticias/geral/2026/06/01/estrutura-de-1968-sustentada-por-quatro-pilares-vermelhos-tem-vao-de-74-m/',
-      },
-      {
-        nome: 'Times Brasil',
-        url: 'https://timesbrasil.com.br/entretenimento/novo-masp-abre-no-proximo-dia-28-de-marco-e-passa-a-ter-dois-predios/',
-      },
-    ],
-    imagem: {
-      porDoSol:
-        'Recorte da ilustração: o MASP ao pôr do sol, com a caixa de vidro presa aos pórticos vermelhos e gente no vão livre.',
-      noite: 'O mesmo recorte à noite: o MASP com a caixa de vidro acesa por dentro e o vão iluminado.',
-    },
-  },
-  {
-    id: 'ponte',
-    numero: '03',
-    verbo: 'atravessar',
-    predio: 'Ponte Estaiada',
-    assinatura: 'Ponte Octávio Frias de Oliveira · Rio Pinheiros',
-    titulo: { texto: 'Duas curvas penduradas num X.', destaque: 'X' },
-    hoje: 'A Ponte Octávio Frias de Oliveira abriu em 10 de maio de 2008 sobre o rio Pinheiros. O mastro em X tem 138 metros e segura duas pistas curvas com 144 estais. É a única ponte do mundo com duas pistas curvas presas a um só mastro.',
-    futuro:
-      'Um monotrilho passa entre as pistas e liga as margens sem trânsito. O rio Pinheiros aparece limpo, com margens verdes, e à noite os estais viram linhas de luz.',
-    ficha: [
-      { rotulo: 'Mastro', valor: '138', unidade: 'm' },
-      { rotulo: 'Estais', valor: '144' },
-      { rotulo: 'Pistas curvas', valor: '2' },
-      { rotulo: 'Pistas', valor: '1.600', unidade: 'm' },
-    ],
-    fontes: [
-      { nome: 'Wikipedia, em inglês', url: 'https://en.wikipedia.org/wiki/Oct%C3%A1vio_Frias_de_Oliveira_Bridge' },
-    ],
-    imagem: {
-      porDoSol:
-        'Recorte da ilustração: a Ponte Estaiada com o sol se pondo atrás do mastro em X e um monotrilho passando.',
-      noite: 'O mesmo recorte à noite: a lua cheia atrás do mastro em X e os estais acesos.',
-    },
-  },
-];
-
+// O que a ficção acertou: seis pontos na Megacidade, do que já chegou ao que ainda é sonho.
 const pontos: Ponto[] = [
   {
     n: 1,
-    nome: 'Copan',
+    nome: 'Monotrilho',
     selo: 'existe',
-    texto: 'A onda de 1.160 apartamentos de Niemeyer.',
-    x: 18.8,
-    y: 42.5,
-    capitulo: 'copan',
+    texto:
+      'São Paulo tem um desde 30 de agosto de 2014: a Linha 15-Prata, o primeiro monotrilho de transporte de massa da América do Sul.',
+    fonte: { nome: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Line_15_(S%C3%A3o_Paulo_Metro)' },
+    x: 40.5,
+    y: 79,
   },
   {
     n: 2,
-    nome: 'MASP',
+    nome: 'Telões nas fachadas',
     selo: 'existe',
-    texto: 'O museu suspenso de Lina Bo Bardi.',
-    x: 37.5,
-    y: 62.7,
-    capitulo: 'masp',
+    texto: 'Prédio que vira tela já é paisagem de centro de cidade.',
+    x: 7.6,
+    y: 53,
   },
   {
     n: 3,
-    nome: 'Ponte Estaiada',
+    nome: 'Jardins nos telhados',
     selo: 'existe',
-    texto: 'O X de 138 metros sobre o rio Pinheiros.',
-    x: 63.8,
-    y: 44.8,
-    capitulo: 'ponte',
+    texto: 'Já existem, e cada vez mais: o telhado verde segura a água da chuva e deixa o prédio mais fresco.',
+    x: 90.5,
+    y: 46,
   },
   {
     n: 4,
-    nome: 'Lanternas vermelhas',
-    selo: 'existe',
-    texto: 'Um aceno à Liberdade, bairro da imigração japonesa.',
-    x: 76.4,
-    y: 83.6,
+    nome: 'Carros voadores',
+    selo: 'ficcao',
+    texto: 'O carro voador do cinema ainda não chegou à garagem de ninguém.',
+    x: 54,
+    y: 69.5,
   },
   {
     n: 5,
-    nome: 'Ipês rosa',
-    selo: 'existe',
-    texto: 'As árvores que pintam São Paulo de rosa no inverno.',
-    x: 6.9,
-    y: 68.3,
+    nome: 'O monólito sem janelas',
+    selo: 'ficcao',
+    texto: 'Um prédio sem janela, sem porta e sem térreo aberto: um prédio que não conversa com a rua.',
+    x: 78.5,
+    y: 35,
   },
   {
     n: 6,
-    nome: 'Monotrilho na ponte',
-    selo: '2080',
-    texto: 'A linha imaginada que atravessa o rio sem trânsito.',
-    x: 60.6,
-    y: 60.5,
+    nome: 'O letreiro Neo-Tóquio',
+    selo: 'ficcao',
+    texto: 'Uma homenagem à cidade de Akira, que o filme imaginou para 2019.',
+    x: 27.9,
+    y: 75.6,
   },
-  {
-    n: 7,
-    nome: 'Torre-cápsula',
-    selo: '2080',
-    texto: 'Apartamentos em módulos que se trocam como peças.',
-    x: 83.8,
-    y: 56,
-  },
-  { n: 8, nome: 'Jardins suspensos', selo: '2080', texto: 'Praças e hortas no alto dos prédios.', x: 91, y: 31 },
 ];
 
 export const copy = {
   meta: {
-    title: 'arqATLAS · São Paulo 2080, um atlas ilustrado',
+    title: 'arqATLAS · Imagine. Projete. Habite.',
     description:
-      'Três prédios reais de São Paulo explicados hoje e imaginados em 2080: Copan, MASP e Ponte Estaiada. Um atlas ilustrado, um capítulo por vez.',
+      'Um atlas ilustrado do futuro das cidades: a megacidade que o cinema imaginou, uma torre feita de soluções que já existem e os prédios de São Paulo onde o futuro já mora.',
+    nomeApp: 'Da ficção a São Paulo',
+    ogAlt: 'A megacidade ilustrada de céu azul, com torre de TV, monotrilho e um monólito roxo, e o título Imagine. Projete. Habite.',
   },
   nav: {
     voltar: 'arqATLAS, voltar ao topo',
@@ -241,11 +133,6 @@ export const copy = {
     cta: { label: 'Receber o atlas', href: '#receber' },
   },
   ticker: ['Imagine', 'Projete', 'Habite', 'Da ficção a São Paulo', 'Um atlas ilustrado', 'Um capítulo por vez'],
-  hero: {
-    titulo: ['Imagine.', 'Projete.', 'Habite.'],
-    meta: ['São Paulo 2080', 'Um atlas ilustrado', '3 prédios reais'],
-    alt: 'Ilustração em estilo anime dos anos 90: São Paulo em 2080 ao pôr do sol, com o Copan à esquerda, o MASP suspenso nos pórticos vermelhos, a Ponte Estaiada com um monotrilho e o sol se pondo atrás do mastro em X, ipês rosa e gente na praça.',
-  },
   imagine: {
     numero: '01',
     eyebrow: 'Imagine',
@@ -269,6 +156,7 @@ export const copy = {
       {
         n: '01',
         titulo: 'Estrutura em diagonal',
+        referencia: 'Hearst Tower',
         rotulo: 'Malha diagonal',
         texto: 'Na Hearst Tower, em Nova York (2006), a malha em diagonal usa cerca de 20% menos aço que uma estrutura comum.',
         fonte: { nome: 'Thornton Tomasetti', url: 'https://thorntontomasetti.com/project/hearst-tower' },
@@ -277,6 +165,7 @@ export const copy = {
       {
         n: '02',
         titulo: 'A torção',
+        referencia: 'Shanghai Tower',
         rotulo: 'Torção',
         texto: 'A Shanghai Tower (632 m, 2015) gira 120 graus enquanto sobe, e isso reduz em 24% a força do vento sobre ela.',
         fonte: { nome: 'Architectural Record', url: 'https://www.architecturalrecord.com/articles/10084-shanghai-tower' },
@@ -285,6 +174,7 @@ export const copy = {
       {
         n: '03',
         titulo: 'Cachoeira',
+        referencia: 'Jewel Changi',
         rotulo: 'Cachoeira',
         texto: 'Em Singapura, a HSBC Rain Vortex cai 40 metros dentro do Jewel Changi. É a cachoeira interna mais alta do mundo.',
         fonte: { nome: 'HSBC', url: 'https://www.about.hsbc.com.sg/news-and-media/the-hsbc-rain-vortex-is-ready-to-dazzle-visitors-at-jewel' },
@@ -293,6 +183,7 @@ export const copy = {
       {
         n: '04',
         titulo: 'Floresta no miolo',
+        referencia: 'Bosco Verticale',
         rotulo: 'Floresta',
         texto: 'Mais de 700 árvores já moram nas fachadas de duas torres de Milão, o Bosco Verticale, concluído em 2014.',
         fonte: { nome: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Bosco_Verticale' },
@@ -306,6 +197,7 @@ export const copy = {
     titulo: { texto: 'Uma cidade só fica pronta quando alguém mora nela.', destaque: 'pronta' },
     lead: 'Os prédios mais futuristas de São Paulo foram desenhados há décadas. O que fez deles futuro foi a cidade que passou a viver neles.',
     alt: 'São Paulo ilustrada ao pôr do sol, com o Copan, o MASP e a Ponte Estaiada, que escurece até a noite com as janelas acesas.',
+    altNoite: 'A mesma São Paulo à noite, com lua cheia e as janelas acesas.',
     fecho: 'As janelas acendem. Alguém chegou em casa.',
     moradas: [
       {
@@ -344,35 +236,30 @@ export const copy = {
     ] satisfies Morada[],
   },
   manifesto: {
-    rotulo: 'Manifesto',
-    meta: ['Por que olhar', 'De 1951 a 2080'],
-    texto:
-      'Em 1951, Oscar Niemeyer desenhou uma onda de concreto com 1.160 apartamentos no centro de São Paulo. Em 1968, Lina Bo Bardi suspendeu um museu sobre um vão de 74 metros para deixar uma praça livre na Paulista. A cidade de 2080 começou a ser construída ali. Este atlas explica como esses prédios funcionam hoje e imagina o que eles podem virar.',
-    fecho: {
-      texto: 'O futuro de São Paulo já está construído. Só falta aprender a olhar para ele.',
-      destaque: 'Só falta aprender a olhar para ele.',
+    rotulo: 'A frase',
+    meta: ['Do sonho à casa'],
+    texto: {
+      texto:
+        'Toda cidade começa como uma imagem na cabeça de alguém. Depois vira desenho, conta e estrutura. E só fica pronta quando alguém mora nela.',
+      destaque: 'só fica pronta quando alguém mora nela.',
     },
   },
-  capitulos: {
-    eyebrow: 'Os capítulos',
-    titulo: { texto: 'Três prédios, três verbos.', destaque: 'três verbos' },
-    lead: 'Cada capítulo explica um prédio que existe hoje e imagina o que ele pode virar em 2080. O botão troca o texto entre o real e o imaginado.',
-    capitulo: 'Capítulo',
-    toggle: { rotulo: 'Ver o prédio', hoje: 'Hoje', futuro: '2080' },
-    selo: { existe: 'Existe hoje', futuro: '2080 · imaginado' },
-    ficha: 'Ficha técnica',
-    fonte: 'Fonte',
-    fontes: 'Fontes',
-    lista: capitulos,
-  },
   mapa: {
-    eyebrow: 'Mapa da cena',
-    titulo: { texto: 'O real e o imaginado, num só lugar.', destaque: 'imaginado' },
-    lead: 'A ilustração mistura o que já existe em São Paulo com ideias para 2080. Toque nos números para saber qual é qual.',
-    legenda: { existe: 'Existe', futuro: '2080' },
-    alt: 'A ilustração de São Paulo 2080 ao pôr do sol, com oito pontos numerados por cima.',
-    irPara: 'Ler o capítulo',
+    eyebrow: 'O que a ficção acertou',
+    titulo: { texto: 'O futuro que o cinema prometeu para 2019.', destaque: '2019' },
+    lead: 'Blade Runner (1982) se passava em Los Angeles, em novembro de 2019. Akira (1988), numa Neo-Tóquio do mesmo ano. O ano chegou e passou: parte daquela cidade já existe, parte ainda é sonho.',
+    legenda: { existe: 'Já existe', ficcao: 'Ainda é ficção' },
+    alt: 'A megacidade ilustrada com seis pontos numerados por cima: o monotrilho, um telão, um jardim no telhado, os carros voadores, o monólito roxo e o letreiro Neo-Tóquio.',
+    fonte: 'Fonte',
     fechar: 'Fechar',
+    fontes: [
+      {
+        nome: 'LAist',
+        url: 'https://laist.com/news/entertainment/blade-runner-november-2019-los-angeles-future-is-here',
+        sobre: 'Blade Runner',
+      },
+      { nome: 'CBR', url: 'https://www.cbr.com/akira-blade-runner-running-man-right-about-2019/', sobre: 'Akira' },
+    ],
     pontos,
   },
   faq: {
@@ -380,27 +267,31 @@ export const copy = {
     titulo: { texto: 'Perguntas frequentes.', destaque: 'frequentes' },
     itens: [
       {
-        pergunta: 'Os prédios são de verdade?',
-        resposta:
-          'Sim. Copan, MASP e Ponte Estaiada existem, e os números vêm de fontes públicas. O que muda em 2080 é imaginação e aparece com o selo “2080”.',
-      },
-      {
         pergunta: 'As imagens são fotos?',
         resposta:
-          'Não. São ilustrações feitas com IA a partir dos prédios reais, no estilo dos cenários de anime dos anos 90.',
+          'Não. São ilustrações feitas com IA, no estilo dos cenários de anime dos anos 90. Nenhum quadro de filme entra no site.',
+      },
+      {
+        pergunta: 'Os números são de verdade?',
+        resposta: 'Sim. Cada número tem a fonte ao lado, e a lista completa fica no rodapé.',
+      },
+      {
+        pergunta: 'O que é ficção?',
+        resposta:
+          'A Megacidade e a Torre-ícone são imaginadas, mas cada parte da Torre já existe em algum prédio real. Em São Paulo, o Copan, o MASP e a Ponte Estaiada são de verdade; os toques de futuro em volta deles são imaginação.',
       },
       {
         pergunta: 'O que chega no meu e-mail?',
-        resposta: 'Um capítulo novo por vez, com um prédio explicado e imaginado.',
+        resposta: 'Um capítulo novo por vez, com uma ideia de futuro e o prédio real que já faz aquilo.',
       },
       { pergunta: 'Quanto custa?', resposta: 'Nada. O atlas é gratuito.' },
     ],
   },
   final: {
-    titulo: 'O futuro tem endereço.',
-    apoio: 'Um prédio de São Paulo por capítulo, explicado e imaginado.',
+    titulo: ['Toda cidade começa', 'como uma imagem.'],
+    apoio: 'Um capítulo por vez: uma ideia de futuro, o prédio que já faz aquilo e a cidade que mora nele.',
     meta: ['Gratuito', 'Um capítulo por vez'],
-    alt: 'São Paulo 2080 à noite, com lua cheia, janelas e letreiros acesos.',
+    alt: 'São Paulo ilustrada à noite, com lua cheia, janelas e letreiros acesos.',
     form: {
       rotulo: 'Seu e-mail',
       placeholder: 'seu@email.com',
@@ -413,10 +304,10 @@ export const copy = {
     },
   },
   rodape: {
-    sobre: 'Um atlas ilustrado de São Paulo, de hoje a 2080.',
+    sobre: 'Um atlas ilustrado, da ficção a São Paulo.',
     imagensTitulo: 'Sobre as imagens',
     imagens:
-      'As ilustrações foram feitas com IA a partir dos prédios reais, no estilo dos cenários de anime dos anos 90. Não são fotos. Tudo o que aparece com o selo “2080” é imaginação.',
+      'As ilustrações foram feitas com IA, no estilo dos cenários de anime dos anos 90. Não são fotos. A Megacidade e a Torre-ícone são imaginadas; o Copan, o MASP e a Ponte Estaiada são de verdade.',
     fontesTitulo: 'Fontes',
     feitoPor: 'Feito por',
     redes: 'Miguel Angelo na web',

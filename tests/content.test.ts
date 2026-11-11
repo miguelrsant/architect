@@ -2,65 +2,90 @@ import { describe, expect, it } from 'vitest';
 import { brand } from '@/content/brand';
 import { copy } from '@/content/copy.pt-BR';
 
-const { lista } = copy.capitulos;
+const dentro = (v: number) => v > 0 && v < 100;
 
-describe('capítulos', () => {
-  it('são os três do roteiro, na ordem: morar, encontrar, atravessar', () => {
-    expect(lista.map((c) => c.id)).toEqual(['copan', 'masp', 'ponte']);
-    expect(lista.map((c) => c.verbo)).toEqual(['morar', 'encontrar', 'atravessar']);
+describe('roteiro', () => {
+  it('o título é o caminho do site: Imagine, Projete e Habite, nos três atos e no menu', () => {
+    expect(copy.imagine.titulo.map((l) => l.verbo).join(' ')).toBe('Imagine. Projete. Habite.');
+    expect(copy.nav.links.map((l) => l.label)).toEqual(['Imagine', 'Projete', 'Habite']);
+    expect([copy.imagine.numero, copy.projete.numero, copy.habite.numero]).toEqual(['01', '02', '03']);
   });
 
-  it.each(lista)('$predio tem os dois textos, ficha de quatro números e fonte https', (c) => {
-    expect(c.hoje.length).toBeGreaterThan(80);
-    expect(c.futuro.length).toBeGreaterThan(60);
-    expect(c.ficha).toHaveLength(4);
-    expect(c.fontes.length).toBeGreaterThan(0);
-    for (const fonte of c.fontes) expect(fonte.url).toMatch(/^https:\/\//);
-    expect(c.titulo.texto).toContain(c.titulo.destaque);
+  it('a frase começa como o convite termina e acaba como o Habite começa', () => {
+    expect(copy.manifesto.texto.texto.startsWith(copy.final.titulo.join(' ').replace(/\.$/, ''))).toBe(true);
+    expect(copy.manifesto.texto.texto).toContain(copy.manifesto.texto.destaque);
+    expect(copy.habite.titulo.texto).toContain('só fica pronta quando alguém mora nela');
   });
 
-  it('os números da ficha batem com o texto de "Hoje"', () => {
-    const [copan, masp, ponte] = lista;
-    expect(copan.hoje).toContain('1.160 apartamentos');
-    expect(copan.hoje).toContain('140 metros');
-    expect(masp.hoje).toContain('74 metros');
-    expect(ponte.hoje).toContain('138 metros');
-    expect(ponte.hoje).toContain('144 estais');
+  it('todo destaque aparece dentro do próprio texto', () => {
+    for (const d of [copy.projete.titulo, copy.habite.titulo, copy.mapa.titulo, copy.faq.titulo]) {
+      expect(d.texto).toContain(d.destaque);
+    }
   });
 });
 
-describe('mapa da cena', () => {
+describe('o que a ficção acertou', () => {
   const { pontos } = copy.mapa;
 
-  it('tem oito pontos numerados de 1 a 8, dentro da imagem', () => {
-    expect(pontos.map((p) => p.n)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    for (const p of pontos) {
-      expect(p.x).toBeGreaterThan(0);
-      expect(p.x).toBeLessThan(100);
-      expect(p.y).toBeGreaterThan(0);
-      expect(p.y).toBeLessThan(100);
+  it('tem seis pontos numerados de 1 a 6, dentro da imagem', () => {
+    expect(pontos.map((p) => p.n)).toEqual([1, 2, 3, 4, 5, 6]);
+    for (const p of pontos) expect(dentro(p.x) && dentro(p.y)).toBe(true);
+  });
+
+  it('separa três coisas que já existem de três que ainda são ficção', () => {
+    expect(pontos.filter((p) => p.selo === 'existe').map((p) => p.nome)).toEqual([
+      'Monotrilho',
+      'Telões nas fachadas',
+      'Jardins nos telhados',
+    ]);
+    expect(pontos.filter((p) => p.selo === 'ficcao')).toHaveLength(3);
+  });
+
+  it('o monotrilho de São Paulo tem data e fonte', () => {
+    const monotrilho = pontos[0];
+    expect(monotrilho.texto).toContain('30 de agosto de 2014');
+    expect(monotrilho.fonte?.url).toMatch(/^https:\/\//);
+  });
+});
+
+describe('Projete e Habite', () => {
+  it('a Torre tem quatro notas, cada uma com um prédio real, fonte https e marca dentro das duas imagens', () => {
+    expect(copy.projete.notas.map((n) => n.referencia)).toEqual([
+      'Hearst Tower',
+      'Shanghai Tower',
+      'Jewel Changi',
+      'Bosco Verticale',
+    ]);
+    for (const n of copy.projete.notas) {
+      expect(n.fonte.url).toMatch(/^https:\/\//);
+      expect(dentro(n.marca.largo.x) && dentro(n.marca.largo.y)).toBe(true);
+      expect(n.marca.emPe && dentro(n.marca.emPe.x) && dentro(n.marca.emPe.y)).toBe(true);
     }
   });
 
-  it('separa cinco coisas que existem de três imaginadas', () => {
-    expect(pontos.filter((p) => p.selo === 'existe')).toHaveLength(5);
-    expect(pontos.filter((p) => p.selo === '2080')).toHaveLength(3);
+  it('os números das notas são os das fontes', () => {
+    const [diagonal, torcao, cachoeira, floresta] = copy.projete.notas.map((n) => n.texto);
+    expect(diagonal).toContain('20% menos aço');
+    expect(torcao).toContain('632 m');
+    expect(torcao).toContain('120 graus');
+    expect(torcao).toContain('24%');
+    expect(cachoeira).toContain('40 metros');
+    expect(floresta).toContain('700 árvores');
   });
 
-  it('os pontos dos prédios levam a capítulos que existem', () => {
-    const ids = new Set(lista.map((c) => c.id));
-    const comCapitulo = pontos.filter((p) => p.capitulo);
-    expect(comCapitulo).toHaveLength(3);
-    for (const p of comCapitulo) expect(ids.has(p.capitulo!)).toBe(true);
+  it('São Paulo tem o Copan, o MASP e a Ponte, cada um com o seu número e fonte https', () => {
+    const moradas = copy.habite.moradas;
+    expect(moradas.map((m) => m.id)).toEqual(['copan', 'masp', 'ponte']);
+    expect(moradas.map((m) => m.numero)).toEqual(['1.160', '74', '138']);
+    for (const m of moradas) expect(m.fonte.url).toMatch(/^https:\/\//);
   });
 });
 
 describe('textos', () => {
-  it('título do herói e destaques usados nos títulos', () => {
-    expect(copy.hero.titulo.join(' ')).toBe('Imagine. Projete. Habite.');
-    for (const d of [copy.manifesto.fecho, copy.capitulos.titulo, copy.mapa.titulo, copy.faq.titulo]) {
-      expect(d.texto).toContain(d.destaque);
-    }
+  it('nenhum texto fala mais de "São Paulo 2080" ou do botão Hoje/2080', () => {
+    const tudo = JSON.stringify(copy);
+    expect(tudo).not.toContain('São Paulo 2080');
+    expect(tudo).not.toContain('“2080”');
   });
 
   it('crédito do rodapé aponta para o site do Miguel', () => {

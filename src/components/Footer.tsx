@@ -7,7 +7,14 @@ const externo = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
 export function Footer() {
   const t = copy.rodape;
-  const fontes = copy.capitulos.lista.flatMap((c) => c.fontes.map((fonte) => ({ ...fonte, predio: c.predio })));
+  // Todas as fontes do site, uma vez cada: os filmes e o monotrilho, as notas da Torre e os prédios de São Paulo.
+  const todas = [
+    ...copy.mapa.fontes,
+    ...copy.mapa.pontos.flatMap((p) => (p.fonte ? [{ ...p.fonte, sobre: p.nome }] : [])),
+    ...copy.projete.notas.map((n) => ({ ...n.fonte, sobre: n.referencia })),
+    ...copy.habite.moradas.map((m) => ({ ...m.fonte, sobre: m.predio })),
+  ];
+  const fontes = todas.filter((f, i) => todas.findIndex((g) => g.url === f.url) === i);
 
   return (
     <footer className={styles.footer}>
@@ -31,7 +38,7 @@ export function Footer() {
                 <a href={fonte.url} {...externo}>
                   {fonte.nome}
                 </a>{' '}
-                <span>· {fonte.predio}</span>
+                <span>· {fonte.sobre}</span>
               </li>
             ))}
           </ul>

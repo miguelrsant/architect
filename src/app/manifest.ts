@@ -4,7 +4,7 @@ import { copy } from '@/content/copy.pt-BR';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${project.name} · São Paulo 2080`,
+    name: `${project.name} · ${copy.meta.nomeApp}`,
     short_name: project.name,
     description: copy.meta.description,
     lang: 'pt-BR',

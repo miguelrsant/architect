@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
-import porDoSol from '@/assets/sao-paulo-2080-por-do-sol.jpg';
+import megacidade from '@/assets/megacidade.jpg';
 import { copy, type Ponto } from '@/content/copy.pt-BR';
 import { Emphasis } from './Emphasis';
+import { useEntrada } from './useEntrada';
 import styles from './SceneMap.module.css';
 
 const CARD_ID = 'mapa-cartao';
@@ -18,6 +19,17 @@ const LINHA = 48;
 
 const position = (p: Ponto) => ({ '--x': `${p.x}%`, '--y': `${p.y}%`, '--i': p.n }) as CSSProperties;
 const itemId = (n: number) => `mapa-ponto-${n}`;
+
+function Fonte({ nome, url }: { nome: string; url: string }) {
+  return (
+    <p className={styles.cardFonte}>
+      {copy.mapa.fonte}:{' '}
+      <a href={url} target="_blank" rel="noreferrer">
+        {nome}
+      </a>
+    </p>
+  );
+}
 
 // O cartão abre para dentro da imagem: perto da borda ele se alinha ao ponto em vez de centralizar.
 function cardPlacement(p: Ponto): string {
@@ -44,6 +56,7 @@ function daVezNaLista(view: HTMLElement, lista: HTMLElement): number | null {
   return n;
 }
 
+/** Ato 1, o que a ficção acertou: a Megacidade com seis pontos, do que já chegou ao que ainda é sonho. */
 export function SceneMap() {
   const t = copy.mapa;
   const [aberto, setAberto] = useState<number | null>(null);
@@ -51,6 +64,9 @@ export function SceneMap() {
   const ref = useRef<HTMLDivElement>(null);
   const view = useRef<HTMLDivElement>(null);
   const lista = useRef<HTMLOListElement>(null);
+
+  // Os pontos entram em sequência quando a cena chega na tela.
+  const entrada = useEntrada(view);
 
   // No celular a imagem fica parada no topo enquanto a lista passa por baixo dela, e o ponto da vez acende.
   useEffect(() => {
@@ -110,7 +126,7 @@ export function SceneMap() {
     setAberto(aberto === p.n ? null : p.n);
   };
 
-  const selo = (p: Ponto) => (p.selo === 'existe' ? t.legenda.existe : t.legenda.futuro);
+  const selo = (p: Ponto) => (p.selo === 'existe' ? t.legenda.existe : t.legenda.ficcao);
   const anel = (p: Ponto) => (p.selo === 'existe' ? styles.real : styles.future);
   const ponto = t.pontos.find((p) => p.n === aberto);
   const daVez = t.pontos.find((p) => p.n === ativo);
@@ -119,28 +135,42 @@ export function SceneMap() {
     <section id="mapa" className={styles.section} aria-labelledby="mapa-titulo">
       <div className="wrap">
         <p className="eyebrow">
-          <i className="sq" aria-hidden="true" /> {t.eyebrow}
+          <i className="sq" aria-hidden="true" /> {copy.imagine.numero} · {t.eyebrow}
         </p>
         <h2 className="h2" id="mapa-titulo">
           <Emphasis {...t.titulo} />
         </h2>
         <div className={styles.head}>
-          <p className="lead">{t.lead}</p>
+          <div className={styles.texto}>
+            <p className="lead">{t.lead}</p>
+            <p className={styles.cardFonte}>
+              {t.fonte}s:{' '}
+              {t.fontes.map((f, i) => (
+                <span key={f.url}>
+                  {i > 0 && ' · '}
+                  <a href={f.url} target="_blank" rel="noreferrer">
+                    {f.nome}
+                  </a>{' '}
+                  ({f.sobre})
+                </span>
+              ))}
+            </p>
+          </div>
           <p className={styles.legend}>
             <span className="chip chip-real">{t.legenda.existe}</span>
-            <span className="chip chip-future">{t.legenda.futuro}</span>
+            <span className="chip chip-future">{t.legenda.ficcao}</span>
           </p>
         </div>
       </div>
 
       <div className={styles.frame}>
-        <div className={`${styles.map} ${daVez ? styles.tour : ''}`} ref={ref}>
+        <div className={`${styles.map} ${daVez ? styles.tour : ''}`} ref={ref} data-entrada={entrada}>
           {/* Os pontos ficam numa camada do tamanho exato da imagem; o cartão vem depois dela. */}
           <div className={styles.view} ref={view}>
             <div className={styles.stage} style={daVez ? camera(daVez) : undefined}>
               <div className={styles.art}>
                 <Image
-                  src={porDoSol}
+                  src={megacidade}
                   alt={t.alt}
                   fill
                   sizes={`${CELULAR} ${Math.round(ZOOM * 100)}vw, (max-width: 1352px) 100vw, 1320px`}
@@ -175,11 +205,7 @@ export function SceneMap() {
                 <span className={styles.cardNumber}>{ponto.n}</span> {ponto.nome}
               </p>
               <p className={styles.cardText}>{ponto.texto}</p>
-              {ponto.capitulo && (
-                <a className={styles.cardLink} href={`#${ponto.capitulo}`} onClick={() => setAberto(null)}>
-                  {t.irPara} <span aria-hidden="true">→</span>
-                </a>
-              )}
+              {ponto.fonte && <Fonte {...ponto.fonte} />}
               <button type="button" className={styles.close} aria-label={t.fechar} onClick={() => setAberto(null)}>
                 ×
               </button>
@@ -202,11 +228,7 @@ export function SceneMap() {
                     <span className={`chip ${p.selo === 'existe' ? 'chip-real' : 'chip-future'}`}>{selo(p)}</span>
                   </p>
                   <p className={styles.cardText}>{p.texto}</p>
-                  {p.capitulo && (
-                    <a className={styles.cardLink} href={`#${p.capitulo}`}>
-                      {t.irPara} <span aria-hidden="true">→</span>
-                    </a>
-                  )}
+                  {p.fonte && <Fonte {...p.fonte} />}
                 </div>
               </li>
             ))}

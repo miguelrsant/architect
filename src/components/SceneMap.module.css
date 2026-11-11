@@ -11,6 +11,11 @@
   flex-wrap: wrap;
 }
 
+.texto {
+  display: grid;
+  gap: var(--space-3);
+}
+
 .legend {
   display: flex;
   gap: var(--space-2);
@@ -53,7 +58,7 @@
   object-fit: cover;
 }
 
-/* Pontos numerados: verde = existe, lilás = 2080 */
+/* Pontos numerados: verde = já existe, lilás = ainda é ficção */
 .real {
   --ring: var(--real);
 }
@@ -84,16 +89,19 @@
   transition: transform .3s var(--ease-out), background .3s, color .3s;
 }
 
-.pin::after {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--ring);
+/* Os pontos entram em sequência quando a cena chega na tela (data-entrada vem do SceneMap.tsx).
+   Só o começo da animação fica preso (backwards), para o hover e o ponto da vez seguirem valendo. */
+.map[data-entrada="espera"] .pin {
   opacity: 0;
-  animation: ping 3.2s var(--ease-out) infinite;
-  animation-delay: calc(var(--i) * .4s);
-  pointer-events: none;
+}
+
+.map[data-entrada="vez"] .pin {
+  animation: entrar .5s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 80ms + 150ms);
+}
+
+@keyframes entrar {
+  from { opacity: 0; transform: translateY(14px) scale(.6); }
 }
 
 .open {
@@ -109,15 +117,6 @@
     background: var(--ring);
     color: var(--night-000);
   }
-}
-
-.open::after {
-  animation: none;
-}
-
-@keyframes ping {
-  0% { opacity: .9; transform: scale(1); }
-  70%, 100% { opacity: 0; transform: scale(1.8); }
 }
 
 /* Cartão de duas linhas, preso ao ponto */
@@ -173,12 +172,14 @@
   color: var(--paper-dim);
 }
 
-.cardLink {
-  justify-self: start;
-  margin-top: 4px;
+.cardFonte {
+  margin: 2px 0 0;
   font-size: 13px;
-  font-weight: 500;
-  color: var(--paper);
+  color: var(--mute);
+}
+
+.cardFonte a {
+  color: var(--paper-dim);
   text-underline-offset: 3px;
 }
 
@@ -254,10 +255,6 @@
 
   .tour .pin:not([aria-current]) {
     opacity: .55;
-  }
-
-  .tour .pin:not([aria-current])::after {
-    animation: none;
   }
 
   .card {
