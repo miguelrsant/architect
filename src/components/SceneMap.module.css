@@ -203,9 +203,13 @@
   background: rgba(244, 241, 250, .08);
 }
 
-/* Celular em pé: nada rola para os lados. A cena cabe na largura da tela e fica parada no topo
-   enquanto a lista dos pontos passa por baixo dela; o ponto da vez acende e a cena se aproxima dele.
-   Deitado, o celular usa o mapa do computador (a imagem parada não caberia na altura). */
+/* Nome do ponto da vez: só no celular com movimento */
+.rotulo {
+  display: none;
+}
+
+/* Celular em pé: nada rola para os lados e os pontos viram cartões. Deitado, o celular usa o mapa do
+   computador (a imagem parada não caberia na altura). */
 @media (max-width: 720px) and (orientation: portrait) {
   .section {
     padding-bottom: var(--space-7);
@@ -217,44 +221,23 @@
     padding-right: 0;
   }
 
-  .view {
-    position: sticky;
-    top: calc(env(safe-area-inset-top, 0px) + var(--nav-h));
-    z-index: 4;
-    overflow: hidden;
-    border-block: 1px solid var(--line);
-    box-shadow: 0 16px 28px rgba(7, 7, 11, .6);
-  }
-
-  .stage {
-    transform-origin: 0 0;
-    transform: translate(var(--cx, 0%), var(--cy, 0%)) scale(var(--zoom, 1));
-    transition: transform .9s var(--ease-out);
-  }
-
   .art {
     border-radius: 0;
     box-shadow: none;
   }
 
-  /* Os pontos mantêm o tamanho quando a cena se aproxima */
   .pin {
     width: 28px;
     height: 28px;
     margin: -14px 0 0 -14px;
     font-size: 12px;
-    scale: calc(1 / var(--zoom, 1));
-    transition: transform .3s var(--ease-out), background .3s, color .3s, opacity .4s, scale .9s var(--ease-out);
+    transition: transform .3s var(--ease-out), background .3s, color .3s, opacity .4s;
   }
 
   .pin[aria-current] {
     transform: scale(1.15);
     background: var(--ring);
     color: var(--night-000);
-  }
-
-  .tour .pin:not([aria-current]) {
-    opacity: .55;
   }
 
   .card {
@@ -264,27 +247,14 @@
   .lista {
     display: block;
     margin: 0;
-    padding: var(--space-2) max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+    padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
     list-style: none;
   }
 
-  .item {
+  .itemCard {
     display: grid;
     grid-template-columns: 28px minmax(0, 1fr);
     gap: 14px;
-    padding: 20px 0;
-    border-bottom: 1px solid rgba(244, 241, 250, .1);
-    /* Tocar num ponto traz o item para logo abaixo da imagem parada (+2px das bordas dela) */
-    scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--nav-h) + 100vw * 1429 / 2560 + 2px);
-    transition: opacity .4s;
-  }
-
-  .item:last-child {
-    border-bottom: 0;
-  }
-
-  .tour .item:not([aria-current]) {
-    opacity: .6;
   }
 
   .itemNumber {
@@ -323,13 +293,142 @@
   }
 }
 
-/* Sem animação: a cena não se aproxima, só o ponto acende */
-@media (max-width: 720px) and (orientation: portrait) and (prefers-reduced-motion: reduce) {
-  .stage {
-    transform: none;
+/* Celular em pé, com movimento: como a Torre. A Megacidade fica fixada na tela inteira, coberta pela
+   altura, e os cartões sobem por cima dela; a câmera (--cx, em % da largura da arte, vem do SceneMap.tsx)
+   leva o ponto da vez para o meio da tela sem mostrar a borda da ilustração. A cena apaga antes de soltar
+   (--veu, como as outras): o ato seguinte começa na noite. */
+@media (max-width: 720px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .map {
+    display: grid;
   }
 
-  .pin {
-    scale: none;
+  .view,
+  .lista {
+    grid-area: 1 / 1;
+  }
+
+  .view {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + var(--nav-h));
+    align-self: start;
+    height: calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
+    overflow: hidden;
+    container-type: size;
+  }
+
+  .view::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: var(--night-000);
+    opacity: var(--veu, 0);
+    pointer-events: none;
+  }
+
+  .stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    aspect-ratio: 2560 / 1429;
+    translate: clamp(100cqw - 100cqh * 1.7915, 50cqw - var(--cx, 50) * 1.7915cqh, 0px) 0;
+    transition: translate 1.6s var(--ease-inout);
+  }
+
+  .tour .pin:not([aria-current]) {
+    opacity: .35;
+  }
+
+  /* o nome do ponto da vez, em cima dele, entra depois que a câmera chega */
+  .rotulo {
+    display: block;
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    z-index: 3;
+    translate: -50% calc(-100% - 22px);
+    padding: 7px 10px;
+    border-radius: var(--radius-pill);
+    font: 500 10px/1 var(--font-mono);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+    background: rgba(7, 7, 11, .8);
+    box-shadow: 0 0 0 1px var(--ring);
+    animation: rotulo .6s 1s var(--ease-out) backwards;
+  }
+
+  /* os cartões passam por cima da cena; o toque atravessa a lista e chega aos pontos */
+  .lista {
+    position: relative;
+    z-index: 1;
+    padding-block: 88svh 60svh;
+    pointer-events: none;
+  }
+
+  .item {
+    min-height: 72svh;
+    display: flex;
+    align-items: center;
+  }
+
+  .itemCard {
+    width: 100%;
+    padding: var(--space-5) var(--space-4);
+    border-radius: var(--radius-md);
+    background: rgba(7, 7, 11, .74);
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 0 0 1px var(--line-strong), 0 18px 40px rgba(7, 7, 11, .35);
+    pointer-events: auto;
+  }
+
+  .itemCard .cardText {
+    color: var(--paper);
+    font-size: 17px;
+  }
+}
+
+@keyframes rotulo {
+  from {
+    opacity: 0;
+    translate: -50% calc(-100% - 12px);
+  }
+}
+
+/* Celular em pé, com menos movimento: nada se move. A imagem inteira fica parada no topo enquanto a lista
+   passa por baixo dela, e o ponto da vez acende. */
+@media (max-width: 720px) and (orientation: portrait) and (prefers-reduced-motion: reduce) {
+  .view {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + var(--nav-h));
+    z-index: 4;
+    overflow: hidden;
+    border-block: 1px solid var(--line);
+    box-shadow: 0 16px 28px rgba(7, 7, 11, .6);
+  }
+
+  .tour .pin:not([aria-current]) {
+    opacity: .55;
+  }
+
+  .lista {
+    padding-top: var(--space-2);
+  }
+
+  .item {
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(244, 241, 250, .1);
+    /* Tocar num ponto traz o item para logo abaixo da imagem parada (+2px das bordas dela) */
+    scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--nav-h) + 100vw * 1429 / 2560 + 2px);
+  }
+
+  .item:last-child {
+    border-bottom: 0;
+  }
+
+  .tour .item:not([aria-current]) {
+    opacity: .6;
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fasesTorre, noiteHabite, passoDaVez, progressoCena } from '@/lib/cena';
+import { fasesTorre, noiteHabite, passoDaVez, progressoCena, veuCena, veuSaida } from '@/lib/cena';
 
 describe('progressoCena', () => {
   it('é 0 até o palco encostar no menu e 1 quando a seção vai soltar', () => {
@@ -27,11 +27,13 @@ describe('passoDaVez', () => {
 });
 
 describe('fasesTorre', () => {
-  it('desenha na primeira metade e pinta depois, de baixo para cima', () => {
+  it('desenha até 46% e pinta depois, de baixo para cima, pronta em 77%', () => {
     expect(fasesTorre(0)).toEqual({ desenho: 0, cor: 0 });
-    expect(fasesTorre(0.25)).toEqual({ desenho: 0.5, cor: 0 });
-    expect(fasesTorre(0.5)).toEqual({ desenho: 1, cor: 0 });
-    expect(fasesTorre(0.72).cor).toBeCloseTo(0.5);
+    expect(fasesTorre(0.23).desenho).toBeCloseTo(0.5);
+    expect(fasesTorre(0.23).cor).toBe(0);
+    expect(fasesTorre(0.46)).toEqual({ desenho: 1, cor: 0 });
+    expect(fasesTorre(0.62).cor).toBeCloseTo(0.5);
+    expect(fasesTorre(0.77).cor).toBeCloseTo(1);
     expect(fasesTorre(1)).toEqual({ desenho: 1, cor: 1 });
   });
 
@@ -42,11 +44,51 @@ describe('fasesTorre', () => {
 });
 
 describe('noiteHabite', () => {
-  it('fica no pôr do sol até 20% e chega à noite em 85%', () => {
+  it('fica no pôr do sol até 15% e chega à noite em 63%, antes da frase final', () => {
     expect(noiteHabite(0)).toBe(0);
-    expect(noiteHabite(0.2)).toBe(0);
-    expect(noiteHabite(0.525)).toBeCloseTo(0.5);
-    expect(noiteHabite(0.85)).toBe(1);
+    expect(noiteHabite(0.15)).toBe(0);
+    expect(noiteHabite(0.39)).toBeCloseTo(0.5);
+    expect(noiteHabite(0.63)).toBeCloseTo(1);
+    expect(noiteHabite(0.8)).toBe(1);
     expect(noiteHabite(1)).toBe(1);
+  });
+});
+
+describe('veuSaida', () => {
+  // tela de 900 px: a cena apaga nos últimos 450 px antes de soltar
+  it('deixa a cena acesa até meia tela do fim e chega à noite quando ela solta', () => {
+    expect(veuSaida(2000, 900)).toBe(0);
+    expect(veuSaida(450, 900)).toBe(0);
+    expect(veuSaida(225, 900)).toBeCloseTo(0.5);
+    expect(veuSaida(0, 900)).toBe(1);
+    expect(veuSaida(-300, 900)).toBe(1);
+  });
+
+  it('não faz nada sem altura de tela', () => {
+    expect(veuSaida(0, 0)).toBe(0);
+  });
+});
+
+describe('veuCena', () => {
+  // tela de 900 px: a cena acende nos primeiros 495 px depois de fixar e apaga nos últimos 450 px
+  it('chega escura, acende depois de fixar e apaga antes de soltar', () => {
+    expect(veuCena(-400, 3400, 900)).toBe(1);
+    expect(veuCena(0, 3000, 900)).toBe(1);
+    expect(veuCena(247.5, 2750, 900)).toBeCloseTo(0.5);
+    expect(veuCena(495, 2500, 900)).toBe(0);
+    expect(veuCena(1500, 1500, 900)).toBe(0);
+    expect(veuCena(2775, 225, 900)).toBeCloseTo(0.5);
+    expect(veuCena(3000, 0, 900)).toBe(1);
+    expect(veuCena(3300, -300, 900)).toBe(1);
+  });
+
+  it('numa cena curta fica a parte mais escura das duas', () => {
+    // 300 px de curso: o véu nunca some, e o meio é o ponto mais claro
+    expect(veuCena(150, 150, 900)).toBeGreaterThan(0.5);
+    expect(veuCena(150, 150, 900)).toBeLessThan(1);
+  });
+
+  it('não faz nada sem altura de tela', () => {
+    expect(veuCena(0, 0, 0)).toBe(0);
   });
 });

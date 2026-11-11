@@ -38,7 +38,55 @@ test('celular: linha de metadados da capa sem quadrado sobrando', async ({ page 
   await expect(quadrados.nth(1)).toBeHidden();
 });
 
-test('celular: o mapa da Megacidade cabe na tela e a lista acende o ponto da vez, sem rolar para os lados', async ({ page }) => {
+test('celular: a Megacidade ocupa a tela, os cartões sobem por cima e a câmera leva o ponto da vez ao meio', async ({ page }) => {
+  await page.goto('/');
+  const mapa = page.locator('#mapa');
+  const cena = mapa.locator('div[class*="view"]').first();
+  // a cena acabou de encostar embaixo do menu: nenhum cartão por cima ainda
+  await mapa.locator('ol').evaluate((lista) =>
+    window.scrollTo({ top: window.scrollY + lista.parentElement!.getBoundingClientRect().top - 60, behavior: 'instant' }),
+  );
+  const v = await cena.boundingBox();
+  expect(Math.round(v!.y)).toBe(60);
+  expect(Math.round(v!.y + v!.height)).toBe(page.viewportSize()!.height);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+
+  const itens = mapa.locator('ol > li');
+  await expect(itens).toHaveCount(6);
+  await expect(itens.nth(0)).toContainText('30 de agosto de 2014');
+  await expect(itens.nth(0).getByRole('link', { name: 'Wikipedia' })).toHaveAttribute('href', /Line_15/);
+
+  // Tocar no 4 leva ao cartão dele, por cima da cena; o ponto e o cartão acendem, e o nome aparece no ponto.
+  const carros = page.getByRole('button', { name: /^4\. Carros voadores/ });
+  await carros.click();
+  const item = page.locator('#mapa-ponto-4');
+  await expect(item).toHaveAttribute('aria-current', 'true');
+  await expect(carros).toHaveAttribute('aria-current', 'true');
+  await expect(mapa.locator('span[class*="rotulo"]')).toHaveText('Carros voadores');
+  const c = await item.locator('> div').boundingBox();
+  expect(c!.y).toBeGreaterThan(v!.y);
+  expect(c!.y + c!.height).toBeLessThan(v!.y + v!.height);
+  // a câmera anda pela cidade até o ponto ficar no meio da tela
+  const meio = page.viewportSize()!.width / 2;
+  await expect
+    .poll(async () => {
+      const b = await carros.boundingBox();
+      return Math.abs(b!.x + b!.width / 2 - meio);
+    })
+    .toBeLessThan(4);
+
+  // Descendo, o cartão seguinte passa da linha de leitura e o ponto dele acende no lugar.
+  await page.evaluate(() => {
+    const [a, b] = ['mapa-ponto-4', 'mapa-ponto-5'].map((id) => document.getElementById(id)!.getBoundingClientRect().top);
+    window.scrollBy({ top: b - a, behavior: 'instant' });
+  });
+  await expect(page.locator('#mapa-ponto-5')).toHaveAttribute('aria-current', 'true');
+  await expect(carros).not.toHaveAttribute('aria-current');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
+test('celular com menos movimento: a Megacidade fica parada no topo e a lista acende o ponto da vez', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   const telao = page.getByRole('button', { name: /^2\. Telões nas fachadas/ });
   await telao.scrollIntoViewIfNeeded();
@@ -47,16 +95,9 @@ test('celular: o mapa da Megacidade cabe na tela e a lista acende o ponto da vez
     pagina: document.documentElement.scrollWidth,
     tela: window.innerWidth,
     cena: el.getBoundingClientRect().width,
-    rola: el.scrollWidth > el.clientWidth && getComputedStyle(el).overflowX !== 'hidden',
   }));
   expect(medidas.pagina).toBeLessThanOrEqual(medidas.tela);
   expect(medidas.cena).toBeLessThanOrEqual(medidas.tela);
-  expect(medidas.rola).toBe(false);
-
-  const itens = page.locator('#mapa ol > li');
-  await expect(itens).toHaveCount(6);
-  await expect(itens.nth(0)).toContainText('30 de agosto de 2014');
-  await expect(itens.nth(0).getByRole('link', { name: 'Wikipedia' })).toHaveAttribute('href', /Line_15/);
 
   // Tocar no 2 desce até o telão na lista: o item fica logo abaixo da imagem, parada no topo, e os dois acendem.
   await telao.click();
@@ -100,6 +141,40 @@ test('celular: a Torre ocupa a tela e os cartões sobem por cima dela, como no c
   await expect(secao.locator('span[aria-hidden]:not([data-ativa])').first()).toHaveCSS('opacity', '0');
   const nitidez = await secao.locator('canvas').evaluate((c: HTMLCanvasElement) => c.width / c.clientWidth);
   expect(nitidez).toBeGreaterThan(2.5);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
+test('celular: São Paulo ocupa a tela e a câmera anda até o prédio de cada cartão', async ({ page }) => {
+  await page.goto('/');
+  const secao = page.locator('#habite');
+  const cartao = secao.locator('ol > li:nth-child(3) article');
+  // o cartão do MASP acima da linha de leitura (60% da tela), por cima da cidade
+  await cartao.evaluate((el) =>
+    window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - window.innerHeight * 0.4, behavior: 'instant' }),
+  );
+  await expect(secao.locator('ol > li:nth-child(3)')).toHaveAttribute('aria-current', 'true');
+  const palco = secao.locator('> div > div:nth-child(2)');
+  const [p, c] = await Promise.all([palco.boundingBox(), cartao.boundingBox()]);
+  expect(Math.round(p!.y)).toBe(60); // encostado embaixo do menu
+  expect(Math.round(p!.y + p!.height)).toBe(page.viewportSize()!.height); // e até o pé da tela
+  expect(c!.y).toBeGreaterThan(p!.y); // o cartão passa por cima da cidade
+  expect(c!.y + c!.height).toBeLessThan(p!.y + p!.height);
+  // só a marca da vez aparece, e a câmera leva o MASP para o meio da tela
+  const marca = secao.locator('[data-ativa]');
+  await expect(marca).toContainText('MASP');
+  await expect(marca).toHaveCSS('opacity', '1');
+  await expect(secao.locator('span[aria-hidden]:not([data-ativa])').first()).toHaveCSS('opacity', '0');
+  const meio = page.viewportSize()!.width / 2;
+  await expect
+    .poll(async () => {
+      const b = await marca.locator('i').boundingBox();
+      return Math.abs(b!.x + b!.width / 2 - meio);
+    })
+    .toBeLessThan(4);
+  // a cidade larga cobre a cena sem mostrar a borda, e a página não rola para os lados
+  const capa = await palco.locator('> div').boundingBox();
+  expect(capa!.x).toBeLessThanOrEqual(0);
+  expect(capa!.x + capa!.width).toBeGreaterThanOrEqual(page.viewportSize()!.width);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
 

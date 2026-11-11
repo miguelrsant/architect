@@ -102,6 +102,20 @@ test('Habite: São Paulo vai do pôr do sol à noite com a rolagem', async ({ pa
   await expect(menuAgora(page)).toHaveCount(0);
 });
 
+test('entre um ato e outro a cena passa pela noite: chega escura, acende e apaga antes de soltar', async ({ page }) => {
+  await open(page);
+  const veu = (id: string) => () =>
+    page.locator(`#${id} > div > div:nth-child(2)`).evaluate((el) => Number((el as HTMLElement).style.getPropertyValue('--veu')));
+  for (const id of ['projete', 'habite']) {
+    await rolarCena(page, id, 0);
+    await expect.poll(veu(id), { message: `${id} chega escura` }).toBe(1);
+    await rolarCena(page, id, 0.5);
+    await expect.poll(veu(id), { message: `${id} acesa no meio` }).toBe(0);
+    await rolarCena(page, id, 1);
+    await expect.poll(veu(id), { message: `${id} apaga antes de soltar` }).toBe(1);
+  }
+});
+
 test('rodapé: logo e nome levam para miguelrsant.com.br em nova aba', async ({ page }) => {
   await open(page);
   const credito = page.locator('footer a', { hasText: 'Miguel Angelo' });

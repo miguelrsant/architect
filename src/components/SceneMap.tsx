@@ -4,17 +4,22 @@ import Image from 'next/image';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import megacidade from '@/assets/megacidade.jpg';
 import { copy, type Ponto } from '@/content/copy.pt-BR';
+import { passoDaVez, veuSaida } from '@/lib/cena';
 import { Emphasis } from './Emphasis';
+import { LEITURA } from './useCena';
 import { useEntrada } from './useEntrada';
 import styles from './SceneMap.module.css';
 
 const CARD_ID = 'mapa-cartao';
 
-/** Celular em pé (a mesma regra do CSS): o mapa vira imagem parada no topo + lista dos pontos. */
+/** Celular em pé (a mesma regra do CSS): os pontos viram cartões. */
 const CELULAR = '(max-width: 720px) and (orientation: portrait)';
-/** No celular, quanto a cena se aproxima do ponto da vez. */
-const ZOOM = 1.4;
-/** O item que passa a até esta distância (px) da base da imagem é o da vez. */
+/**
+ * Com movimento, a Megacidade fica fixada na tela inteira, os cartões sobem por cima dela e a câmera anda
+ * pela cidade até o ponto da vez. Sem movimento, a imagem inteira fica parada no topo e a lista passa embaixo.
+ */
+const COM_MOVIMENTO = '(prefers-reduced-motion: no-preference)';
+/** Sem movimento: o item que passa a até esta distância (px) da base da imagem é o da vez. */
 const LINHA = 48;
 
 const position = (p: Ponto) => ({ '--x': `${p.x}%`, '--y': `${p.y}%`, '--i': p.n }) as CSSProperties;
@@ -38,22 +43,15 @@ function cardPlacement(p: Ponto): string {
   return `${h} ${v}`;
 }
 
-// Leva o ponto para o meio da moldura sem mostrar a borda da imagem (o deslocamento é em % da própria cena).
-function camera(p: Ponto): CSSProperties {
-  const eixo = (v: number) => `${(Math.min(0, Math.max(1 - ZOOM, 0.5 - (ZOOM * v) / 100)) * 100).toFixed(2)}%`;
-  return { '--zoom': ZOOM, '--cx': eixo(p.x), '--cy': eixo(p.y) } as CSSProperties;
-}
-
-// O item da lista que acabou de passar pela base da imagem (parada no topo) é o da vez.
-function daVezNaLista(view: HTMLElement, lista: HTMLElement): number | null {
+// O ponto da vez no celular, só com a cena já no topo. Com movimento, é o último cartão que passou da linha
+// de leitura (como na Torre); sem movimento, o último item que passou pela base da imagem parada.
+function daVezNaLista(view: HTMLElement, lista: HTMLElement, sobre: boolean): number | null {
   const r = view.getBoundingClientRect();
-  if (r.top > parseFloat(getComputedStyle(view).top) + 1) return null; // a imagem ainda não chegou ao topo: cena inteira
-  let n: number | null = null;
-  for (const item of lista.children) {
-    if (item.getBoundingClientRect().top > r.bottom + LINHA) break;
-    n = Number((item as HTMLElement).dataset.n);
-  }
-  return n;
+  if (r.top > parseFloat(getComputedStyle(view).top) + 1) return null; // a imagem ainda não chegou ao topo
+  const itens = Array.from(lista.children) as HTMLElement[];
+  const topos = itens.map((li) => (sobre ? (li.firstElementChild ?? li) : li).getBoundingClientRect().top);
+  const i = passoDaVez(topos, sobre ? window.innerHeight * LEITURA : r.bottom + LINHA);
+  return i < 0 ? null : Number(itens[i].dataset.n);
 }
 
 /** Ato 1, o que a ficção acertou: a Megacidade com seis pontos, do que já chegou ao que ainda é sonho. */
@@ -68,15 +66,31 @@ export function SceneMap() {
   // Os pontos entram em sequência quando a cena chega na tela.
   const entrada = useEntrada(view);
 
-  // No celular a imagem fica parada no topo enquanto a lista passa por baixo dela, e o ponto da vez acende.
+  // No celular a imagem fica parada e os pontos passam em cartões; o ponto da vez acende. Com movimento, a
+  // cena apaga antes de soltar (o véu de noite), e o Projete começa no escuro, sem corte de imagem para imagem.
+  // Ela chega acesa: antes dela vem o título do mapa, não outra imagem.
   useEffect(() => {
     const mq = window.matchMedia(CELULAR);
+    const mov = window.matchMedia(COM_MOVIMENTO);
     let frame = 0;
     const medir = () => {
       frame = 0;
       const v = view.current;
       const l = lista.current;
-      setAtivo(mq.matches && v && l ? daVezNaLista(v, l) : null);
+      const m = ref.current;
+      if (!mq.matches || !v || !l || !m) {
+        setAtivo(null);
+        v?.style.removeProperty('--veu');
+        return;
+      }
+      setAtivo(daVezNaLista(v, l, mov.matches));
+      if (mov.matches) {
+        const r = m.getBoundingClientRect();
+        const falta = r.height - v.offsetHeight - (parseFloat(getComputedStyle(v).top) - r.top);
+        v.style.setProperty('--veu', veuSaida(falta, window.innerHeight).toFixed(3));
+      } else {
+        v.style.removeProperty('--veu');
+      }
     };
     const agendar = () => {
       if (!frame) frame = requestAnimationFrame(medir);
@@ -92,9 +106,11 @@ export function SceneMap() {
     };
     ligar();
     mq.addEventListener('change', ligar);
+    mov.addEventListener('change', agendar);
     return () => {
       cancelAnimationFrame(frame);
       mq.removeEventListener('change', ligar);
+      mov.removeEventListener('change', agendar);
       window.removeEventListener('scroll', agendar);
       window.removeEventListener('resize', agendar);
     };
@@ -117,10 +133,18 @@ export function SceneMap() {
     };
   }, [aberto]);
 
-  // No computador o ponto abre o cartão; no celular ele desce até o item da lista.
+  // No computador o ponto abre o cartão. No celular ele leva ao cartão dele: com movimento, o cartão para
+  // logo acima da linha de leitura, por cima da cena; sem movimento, o item fica logo abaixo da imagem.
   const tocar = (p: Ponto) => {
     if (window.matchMedia(CELULAR).matches) {
-      document.getElementById(itemId(p.n))?.scrollIntoView({ block: 'start' });
+      const item = document.getElementById(itemId(p.n));
+      if (!item) return;
+      if (window.matchMedia(COM_MOVIMENTO).matches) {
+        const cartao = (item.firstElementChild ?? item).getBoundingClientRect();
+        window.scrollTo({ top: window.scrollY + cartao.top - window.innerHeight * (LEITURA - 0.15) });
+      } else {
+        item.scrollIntoView({ block: 'start' });
+      }
       return;
     }
     setAberto(aberto === p.n ? null : p.n);
@@ -167,13 +191,14 @@ export function SceneMap() {
         <div className={`${styles.map} ${daVez ? styles.tour : ''}`} ref={ref} data-entrada={entrada}>
           {/* Os pontos ficam numa camada do tamanho exato da imagem; o cartão vem depois dela. */}
           <div className={styles.view} ref={view}>
-            <div className={styles.stage} style={daVez ? camera(daVez) : undefined}>
+            {/* --cx: a câmera do celular leva o ponto da vez (em % da largura da arte) para o meio da tela */}
+            <div className={styles.stage} style={{ '--cx': String(daVez?.x ?? 50) } as CSSProperties}>
               <div className={styles.art}>
                 <Image
                   src={megacidade}
                   alt={t.alt}
                   fill
-                  sizes={`${CELULAR} ${Math.round(ZOOM * 100)}vw, (max-width: 1352px) 100vw, 1320px`}
+                  sizes={`${CELULAR} and ${COM_MOVIMENTO} calc((100vh - 60px) * 1.8), (max-width: 1352px) 100vw, 1320px`}
                   placeholder="blur"
                   className={styles.img}
                 />
@@ -196,6 +221,12 @@ export function SceneMap() {
                   </button>
                 );
               })}
+              {/* Celular com movimento: o nome do ponto da vez, em cima dele */}
+              {daVez && (
+                <span key={daVez.n} className={`${styles.rotulo} ${anel(daVez)}`} style={position(daVez)} aria-hidden="true">
+                  {daVez.nome}
+                </span>
+              )}
             </div>
           </div>
           {ponto && (
@@ -211,7 +242,7 @@ export function SceneMap() {
               </button>
             </div>
           )}
-          {/* Celular: os mesmos pontos em lista, um embaixo do outro. */}
+          {/* Celular: os mesmos pontos em cartões, um depois do outro. */}
           <ol className={styles.lista} ref={lista}>
             {t.pontos.map((p) => (
               <li
@@ -221,14 +252,16 @@ export function SceneMap() {
                 className={`${styles.item} ${anel(p)}`}
                 aria-current={ativo === p.n || undefined}
               >
-                <span className={styles.itemNumber}>{p.n}</span>
-                <div className={styles.itemBody}>
-                  <p className={styles.itemHead}>
-                    <span className={styles.itemName}>{p.nome}</span>
-                    <span className={`chip ${p.selo === 'existe' ? 'chip-real' : 'chip-future'}`}>{selo(p)}</span>
-                  </p>
-                  <p className={styles.cardText}>{p.texto}</p>
-                  {p.fonte && <Fonte {...p.fonte} />}
+                <div className={styles.itemCard}>
+                  <span className={styles.itemNumber}>{p.n}</span>
+                  <div className={styles.itemBody}>
+                    <p className={styles.itemHead}>
+                      <span className={styles.itemName}>{p.nome}</span>
+                      <span className={`chip ${p.selo === 'existe' ? 'chip-real' : 'chip-future'}`}>{selo(p)}</span>
+                    </p>
+                    <p className={styles.cardText}>{p.texto}</p>
+                    {p.fonte && <Fonte {...p.fonte} />}
+                  </div>
                 </div>
               </li>
             ))}

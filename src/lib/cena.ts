@@ -19,15 +19,38 @@ export function passoDaVez(topos: readonly number[], linha: number): number {
   return n;
 }
 
-/** Projete: na primeira metade a torre se desenha; depois a cor sobe da base até o topo. */
+/**
+ * Projete: até 46% da cena a torre se desenha; depois a cor sobe da base até o topo e fica pronta em 77%,
+ * quando chega o último cartão. O resto é a torre inteira, parada, até o véu da saída.
+ */
 export function fasesTorre(p: number): { desenho: number; cor: number } {
-  return { desenho: clamp01(p / 0.5), cor: clamp01((p - 0.52) / 0.4) };
+  return { desenho: clamp01(p / 0.46), cor: clamp01((p - 0.47) / 0.3) };
 }
 
-/** Habite: o pôr do sol vira noite entre 20% e 85% da cena. */
+/** Habite: o pôr do sol vira noite entre 15% e 63% da cena, antes da frase final. */
 export function noiteHabite(p: number): number {
-  return smoothstep((p - 0.2) / 0.65);
+  return smoothstep((p - 0.15) / 0.48);
+}
+
+/** Quanto da altura da tela se rola enquanto o véu sobe (a cena acende) e enquanto ele desce (a cena apaga). */
+const ACENDE = 0.55;
+const APAGA = 0.5;
+
+/** Só a saída do véu: a cena apaga antes de soltar (para a que já chega acesa, depois de um texto). */
+export function veuSaida(falta: number, tela: number): number {
+  return tela > 0 ? 1 - smoothstep(falta / (APAGA * tela)) : 0;
+}
+
+/**
+ * O véu de noite sobre o palco fixado, de 0 (cena acesa) a 1 (só a noite). A cena chega escura, acende
+ * depois de fixar e escurece antes de soltar: um ato passa ao outro pela noite, com o título do próximo no
+ * escuro, sem corte de imagem para imagem. `passou` é quanto já se rolou desde que o palco fixou e `falta`
+ * quanto falta para ele soltar, em px (negativos fora da cena); `tela` é a altura da tela.
+ */
+export function veuCena(passou: number, falta: number, tela: number): number {
+  if (tela <= 0) return 0;
+  return Math.max(1 - smoothstep(passou / (ACENDE * tela)), veuSaida(falta, tela));
 }
 
 /** Estados parados dos quadros de estilo (`?quadro` na URL): o momento mais representativo de cada cena. */
-export const QUADRO = { projete: 0.7, habite: 0.55 } as const;
+export const QUADRO = { projete: 0.6, habite: 0.4 } as const;

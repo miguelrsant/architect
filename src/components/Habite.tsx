@@ -1,7 +1,7 @@
 'use client';
 
 import Image, { type StaticImageData } from 'next/image';
-import { useRef } from 'react';
+import { type CSSProperties, useRef } from 'react';
 import copanNoite from '@/assets/copan-noite.jpg';
 import copanDia from '@/assets/copan-por-do-sol.jpg';
 import maspNoite from '@/assets/masp-noite.jpg';
@@ -12,7 +12,7 @@ import noite from '@/assets/sao-paulo-2080-noite.jpg';
 import noiteRetrato from '@/assets/sao-paulo-2080-noite-retrato.jpg';
 import porDoSol from '@/assets/sao-paulo-2080-por-do-sol.jpg';
 import porDoSolRetrato from '@/assets/sao-paulo-2080-por-do-sol-retrato.jpg';
-import { copy, type Predio } from '@/content/copy.pt-BR';
+import { copy, type Morada, type Predio } from '@/content/copy.pt-BR';
 import { noiteHabite, QUADRO } from '@/lib/cena';
 import { Emphasis } from './Emphasis';
 import { marca } from './marca';
@@ -20,7 +20,10 @@ import { TallSource } from './TallSource';
 import { useCena } from './useCena';
 import styles from './Cena.module.css';
 
+// A cidade larga cobre o palco pela altura, também em pé (a câmera anda por ela). O recorte 3:4 é só do
+// movimento reduzido em pé, quando ele fica parado no topo e os cartões passam embaixo.
 const SIZES = '(max-aspect-ratio: 2560/1429) calc((100vh - 60px) * 1.8), 100vw';
+const PARADO_EM_PE = '(max-aspect-ratio: 1/1) and (prefers-reduced-motion: reduce)';
 const SIZES_EM_PE = '(max-aspect-ratio: 87/200) 100vw, 44vh';
 
 const MINIATURAS: Record<Predio, { dia: StaticImageData; noite: StaticImageData }> = {
@@ -28,6 +31,15 @@ const MINIATURAS: Record<Predio, { dia: StaticImageData; noite: StaticImageData 
   masp: { dia: maspDia, noite: maspNoite },
   ponte: { dia: ponteDia, noite: ponteNoite },
 };
+
+/**
+ * A câmera em pé (`--cx`, em % da largura da arte): anda pela cidade da esquerda para a direita. A abertura
+ * mostra o começo dela, cada cartão leva o seu prédio para o meio da tela e a frase final vai até a outra ponta.
+ */
+function camera(ativo: number, moradas: readonly Morada[]): number {
+  if (ativo < 1) return 0;
+  return ativo > moradas.length ? 100 : moradas[ativo - 1].marca.largo.x;
+}
 
 /** Ato 3, Habite: São Paulo do pôr do sol à noite, com os três prédios que a cidade já mora. */
 export function Habite() {
@@ -37,28 +49,22 @@ export function Habite() {
   const palco = useRef<HTMLDivElement>(null);
   const notas = useRef<HTMLOListElement>(null);
 
-  // em pé, os cartões passam embaixo do palco para não cobrir os prédios
-  const ativo = useCena(
-    { cena: trilho, palco, notas },
-    QUADRO.habite,
-    (p) => {
-      secao.current?.style.setProperty('--noite', noiteHabite(p).toFixed(3));
-    },
-    true,
-  );
+  const ativo = useCena({ cena: trilho, palco, notas }, QUADRO.habite, (p) => {
+    secao.current?.style.setProperty('--noite', noiteHabite(p).toFixed(3));
+  });
 
   return (
     <section id="habite" className={styles.habite} ref={secao} aria-labelledby="habite-titulo">
       <div className={styles.cena}>
         <div className={styles.trilho} ref={trilho} aria-hidden="true" />
         <div className={styles.palco} ref={palco}>
-          <div className={styles.capa}>
+          <div className={styles.capa} style={{ '--cx': String(camera(ativo, t.moradas)) } as CSSProperties}>
             <picture className="fill-picture">
-              <TallSource src={porDoSolRetrato} sizes={SIZES_EM_PE} />
+              <TallSource src={porDoSolRetrato} sizes={SIZES_EM_PE} media={PARADO_EM_PE} />
               <Image src={porDoSol} alt={t.alt} fill sizes={SIZES} quality={85} className={styles.arte} />
             </picture>
             <picture className={`fill-picture ${styles.noite}`}>
-              <TallSource src={noiteRetrato} sizes={SIZES_EM_PE} />
+              <TallSource src={noiteRetrato} sizes={SIZES_EM_PE} media={PARADO_EM_PE} />
               <Image src={noite} alt="" aria-hidden="true" fill sizes={SIZES} quality={85} className={styles.arte} />
             </picture>
             {t.moradas.map((m, i) => (
