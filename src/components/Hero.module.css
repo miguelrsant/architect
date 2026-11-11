@@ -1,103 +1,123 @@
-/* --p (0→1 no scroll), --night e --glow vêm do Hero.tsx; --mx/--my do ponteiro. */
+/* Ato 1, Imagine. --p (0→1 no scroll) vem do Hero.tsx; --mx/--my do ponteiro. */
 .hero {
   --p: 0;
-  --night: 0;
-  --glow: 0;
   --mx: 0px;
   --my: 0px;
   position: relative;
-  height: clamp(520px, 88vh, 900px);
   height: clamp(540px, calc(100svh - 28px), 1080px); /* enche a primeira tela (menos o ticker) */
   margin-top: calc(-1 * var(--nav-h));
   overflow: hidden;
-  background: var(--dusk-violet);
+  background: var(--night-100);
   isolation: isolate;
 }
 
 .art {
   position: absolute;
   inset: -4% -3% -12%;
-  transform: translate3d(var(--mx), calc(var(--p) * 14% + var(--my)), 0) scale(calc(1 + var(--p) * .06));
+  transform: translate3d(var(--mx), calc(var(--p) * 10% + var(--my)), 0) scale(calc(1 + var(--p) * .06));
   transition: transform .5s var(--ease-out);
   will-change: transform;
 }
 
+/* Ao abrir, a cidade chega um pouco mais perto, uma vez só */
 .stack {
   position: absolute;
   inset: 0;
-  animation: kenburns 48s var(--ease-inout) infinite alternate;
+  animation: chegar 2.6s var(--ease-out) both;
+}
+
+@keyframes chegar {
+  from { transform: scale(1.06); }
+  to { transform: scale(1); }
 }
 
 .img {
   object-fit: cover;
-  object-position: 58% 55%;
-  filter: saturate(1.1) contrast(1.04);
+  object-position: 50% 50%;
+  filter: saturate(1.06) contrast(1.03);
 }
 
-.night {
-  opacity: var(--night);
-}
-
-@keyframes kenburns {
-  from { transform: scale(1.02); }
-  to { transform: scale(1.09) translateX(-1.2%); }
-}
-
-/* Céu escurece em violeta enquanto a noite entra */
-.dusk {
+/* Rolando, a cidade escurece até virar o fundo da frase seguinte */
+.shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #120F3D 0%, #2C1D68 50%, #5A2D77 100%);
-  mix-blend-mode: multiply;
-  opacity: calc(var(--p) * .4);
+  background: var(--night-000);
+  opacity: calc(var(--p) * .6);
   pointer-events: none;
 }
 
-/* Brilho rosa do crepúsculo, só no meio do caminho */
-.glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(120% 70% at 50% 100%, rgba(255, 128, 190, .55), rgba(255, 128, 190, 0) 60%);
-  mix-blend-mode: screen;
-  opacity: var(--glow);
-  pointer-events: none;
-}
-
-/* A base sempre se dissolve no preto da página, em qualquer ponto do scroll:
-   a capa não termina numa linha reta. Rolando, o escuro sobe um pouco mais. */
+/* A base sempre se dissolve no preto da página, em qualquer ponto do scroll. */
 .fade {
   position: absolute;
-  inset: auto 0 -4px 0; /* passa um pouco da borda: sem fresta de 1px quando a camada escala */
-  height: 58%;
-  background: linear-gradient(180deg,
-    rgba(7, 7, 11, 0) 0%,
-    rgba(7, 7, 11, .2) 30%,
-    rgba(7, 7, 11, .58) 60%,
-    rgba(7, 7, 11, .88) 82%,
-    var(--night-000) 96%);
+  inset: auto 0 -4px 0;
+  height: 72%;
+  background:
+    radial-gradient(110% 80% at 0% 100%, rgba(7, 7, 11, .62) 0%, rgba(7, 7, 11, .3) 42%, rgba(7, 7, 11, 0) 70%),
+    linear-gradient(180deg,
+      rgba(7, 7, 11, 0) 0%,
+      rgba(7, 7, 11, .3) 22%,
+      rgba(7, 7, 11, .66) 48%,
+      rgba(7, 7, 11, .9) 74%,
+      var(--night-000) 94%);
   transform-origin: bottom;
-  transform: scaleY(calc(1 + var(--p) * .5));
+  transform: scaleY(calc(1 + var(--p) * .4));
   pointer-events: none;
 }
 
 .copy {
   position: absolute;
-  inset: auto 0 11% 0;
-  text-align: center;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  inset: auto 0 9% 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px), calc((100% - 1120px) / 2 + 16px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* O título é o caminho do site: Imagine aceso, Projete e Habite só no traço, esperando a vez. */
+.titulo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(58px, 9.2vw, 146px);
+  line-height: .92;
+  letter-spacing: -.02em;
+  color: #fff;
+  margin: 0;
+}
+
+.linha {
+  display: flex;
+  align-items: flex-start;
+  gap: .22em;
+}
+
+.n {
+  flex: none;
+  width: 2.6em;
+  padding-top: 1.5em;
+  font: 500 clamp(11px, .9vw, 13px)/1 var(--font-mono);
+  letter-spacing: .16em;
+  color: var(--signal-red);
 }
 
 .word {
   display: inline-block;
-  animation: rise 1.4s var(--ease-out) both;
+  text-shadow: var(--shadow-headline);
+  animation: rise 1.3s var(--ease-out) both;
 }
 
-.copy h1 > span:nth-child(2) .word {
+.linha:not([data-agora]) .word {
+  color: rgba(255, 255, 255, .06);
+  -webkit-text-stroke: 1.2px rgba(255, 255, 255, .86);
+  text-shadow: none;
+}
+
+.linha:not([data-agora]) .n {
+  color: rgba(255, 255, 255, .62);
+}
+
+.linha:nth-child(2) .word {
   animation-delay: .12s;
 }
 
-.copy h1 > span:nth-child(3) .word {
+.linha:nth-child(3) .word {
   animation-delay: .24s;
 }
 
@@ -106,22 +126,41 @@
   to { transform: none; filter: none; opacity: 1; }
 }
 
+.apoio {
+  margin: var(--space-5) 0 0;
+  max-width: 26em;
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.45;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(8, 8, 24, .9), 0 0 16px rgba(8, 8, 24, .75);
+  text-wrap: pretty;
+}
+
 .meta {
   margin-top: var(--space-5);
-  justify-content: center;
   color: #fff;
   text-shadow: 0 1px 2px rgba(8, 8, 24, .9), 0 0 16px rgba(8, 8, 24, .75);
 }
 
-/* Telas em pé: recorte vertical da ilustração, com a Ponte e o sol perto do centro */
+/* Telas em pé: o recorte com a torre de TV, o letreiro e o monotrilho */
 @media (max-aspect-ratio: 1/1) {
   .img {
-    object-position: 72% 50%;
+    object-position: 35% 40%;
   }
 }
 
-/* Celular: o terceiro item da linha de metadados desce inteiro, sem quadrado sobrando no fim da linha */
+/* Celular: o terceiro item da linha de metadados desce inteiro */
 @media (max-width: 520px) {
+  .copy {
+    bottom: 7%;
+  }
+
+  .n {
+    width: 2.2em;
+    padding-top: 1.2em;
+  }
+
   .meta {
     row-gap: 10px;
   }
@@ -132,6 +171,5 @@
 
   .meta span:last-of-type {
     flex-basis: 100%;
-    text-align: center;
   }
 }

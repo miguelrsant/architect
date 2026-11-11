@@ -1,0 +1,460 @@
+/* As duas cenas fixadas, Projete (a Torre se desenha) e Habite (São Paulo do pôr do sol à noite).
+   O palco fica fixo (sticky) e os cartões passam por cima dele no computador; em pé, o palco fica
+   no topo e os cartões passam embaixo, como no mapa. */
+.projete,
+.habite {
+  position: relative;
+  background: var(--night-000);
+}
+
+.cena {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* O trilho ocupa a mesma área do palco: é por ele que o progresso é medido. */
+.trilho,
+.palco,
+.passos {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.palco {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + var(--nav-h));
+  align-self: start;
+  height: calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
+  overflow: hidden;
+  container-type: size;
+  /* a prancheta: noite com uma grade fina, que aparece antes do traço */
+  background-color: var(--night-000);
+  background-image:
+    linear-gradient(rgba(157, 184, 255, .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(157, 184, 255, .055) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: center center;
+}
+
+/* Escurece o lado dos cartões, sem apagar a cidade. */
+.palco::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(7, 7, 11, .62) 0%, rgba(7, 7, 11, .28) 32%, rgba(7, 7, 11, 0) 52%);
+  pointer-events: none;
+}
+
+/* A capa tem a proporção da ilustração e cobre o palco: imagem, canvas e marcas dividem as coordenadas. */
+.capa {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, 100cqh * 1.7915);
+  aspect-ratio: 2560 / 1429;
+  transform: translate(-50%, -50%);
+}
+
+.arte {
+  object-fit: cover;
+  transition: opacity .6s var(--ease-out);
+}
+
+.tela {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity .8s var(--ease-out);
+}
+
+/* Quando o sombreador fica pronto, o desenho entra por cima da ilustração; sem WebGL ela fica. */
+.projete[data-modo="desenho"] .arte {
+  opacity: 0;
+}
+
+.projete[data-modo="desenho"] .tela {
+  opacity: 1;
+}
+
+/* Marcas: um anel vermelho com o número; a da vez acende e mostra o nome. */
+.marca {
+  position: absolute;
+  z-index: 1;
+  left: var(--xl);
+  top: var(--yl);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transform: translate(-14px, -50%);
+  pointer-events: none;
+  opacity: .6;
+  transition: opacity .5s var(--ease-out);
+}
+
+.anel {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 500 10px/1 var(--font-mono);
+  font-style: normal;
+  letter-spacing: .04em;
+  color: #fff;
+  background: rgba(7, 7, 11, .6);
+  box-shadow: 0 0 0 1.5px var(--signal-red);
+  transition: background .4s, transform .5s var(--ease-out);
+}
+
+.rotulo {
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+  padding: 7px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(7, 7, 11, .78);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity .4s var(--ease-out), transform .5s var(--ease-out);
+}
+
+.marca[data-ativa] {
+  opacity: 1;
+}
+
+.marca[data-ativa] .anel {
+  background: var(--signal-red);
+  transform: scale(1.12);
+}
+
+.marca[data-ativa] .rotulo {
+  opacity: 1;
+  transform: none;
+}
+
+/* Cartões */
+.passos {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 34svh;
+}
+
+.abertura {
+  min-height: calc(100svh - var(--nav-h));
+  display: flex;
+  align-items: center;
+}
+
+.passo {
+  min-height: 80svh;
+  display: flex;
+  align-items: center;
+}
+
+.cartaoAbertura,
+.cartao {
+  width: min(440px, calc(100% - 32px));
+  margin-left: max(16px, calc((100% - 1120px) / 2 + 16px));
+}
+
+.cartao {
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  background: rgba(7, 7, 11, .74);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 1px var(--line-strong), 0 18px 40px rgba(7, 7, 11, .35);
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 3.2vw, 44px);
+  line-height: 1.04;
+  letter-spacing: -.01em;
+  margin: var(--space-4) 0 var(--space-5);
+  text-wrap: balance;
+  text-shadow: 0 2px 18px rgba(7, 7, 11, .8);
+}
+
+.verbo {
+  display: block;
+  font-size: clamp(76px, 10.5vw, 160px);
+  line-height: .9;
+  letter-spacing: -.02em;
+  margin-bottom: .16em;
+  color: #fff;
+}
+
+.lead {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--paper-dim);
+  margin: 0;
+  max-width: 30em;
+  text-wrap: pretty;
+}
+
+.num {
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: .16em;
+  color: var(--signal-red);
+  margin: 0 0 var(--space-3);
+}
+
+.nome {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 2.5vw, 36px);
+  line-height: 1.05;
+  margin: 0 0 var(--space-3);
+}
+
+.texto {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.fonte {
+  margin: var(--space-4) 0 0;
+  font-size: 12px;
+  color: var(--mute);
+}
+
+.fonte a {
+  color: var(--paper-dim);
+  text-underline-offset: 3px;
+}
+
+.fonte a:hover {
+  color: var(--paper);
+}
+
+/* Só existe no movimento reduzido */
+.parado {
+  display: none;
+  margin: 0;
+}
+
+/* Em pé (celular, tablet em pé): o palco 3:4 fica no topo e os cartões passam embaixo dele. */
+@media (max-aspect-ratio: 1/1) {
+  .cena {
+    --palco-h: min(133.33vw, 58svh);
+    grid-template-rows: var(--palco-h) auto;
+  }
+
+  .trilho,
+  .palco {
+    grid-row: 1 / 3;
+  }
+
+  .passos {
+    grid-row: 2;
+    padding-bottom: 26svh;
+  }
+
+  .palco {
+    z-index: 2;
+    height: var(--palco-h);
+    box-shadow: 0 18px 26px rgba(7, 7, 11, .92);
+  }
+
+  .palco::after {
+    display: none;
+  }
+
+  .capa {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    height: 100%;
+    aspect-ratio: 2144 / 2858;
+    margin-inline: auto;
+  }
+
+  .marca {
+    left: var(--xp);
+    top: var(--yp);
+  }
+
+  .abertura {
+    min-height: 0;
+    padding-block: var(--space-7) var(--space-4);
+  }
+
+  .passo {
+    min-height: 44svh;
+    align-items: flex-start;
+  }
+
+  .cartaoAbertura,
+  .cartao {
+    width: auto;
+    margin-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .cartao {
+    padding: var(--space-4) 0 0;
+    border-radius: 0;
+    background: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .titulo {
+    font-size: clamp(28px, 7.4vw, 40px);
+    text-shadow: none;
+  }
+
+  .verbo {
+    font-size: clamp(64px, 19vw, 120px);
+  }
+
+  .lead,
+  .texto {
+    font-size: 17px;
+  }
+}
+
+/* Movimento reduzido: nada fixado nem desenhado; a torre colorida, o desenho parado e as notas. */
+@media (prefers-reduced-motion: reduce) {
+  .cena {
+    grid-template-rows: auto auto;
+  }
+
+  .trilho,
+  .palco {
+    grid-row: 1;
+  }
+
+  .palco {
+    position: relative;
+    top: auto;
+  }
+
+  .passos {
+    grid-row: 2;
+    padding-bottom: var(--space-8);
+  }
+
+  .abertura,
+  .passo {
+    min-height: 0;
+    padding-block: var(--space-6);
+  }
+
+  .marca {
+    opacity: 1;
+  }
+
+  .parado {
+    display: block;
+    width: min(560px, calc(100% - 32px));
+    margin: 0 auto var(--space-9);
+  }
+
+  .paradoImg {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* Habite: a noite chega por cima do pôr do sol (--noite vem do Habite.tsx). Os prédios reais ficam
+   à esquerda e no centro da cena, então os cartões passam do lado direito. */
+.habite {
+  --noite: 0;
+}
+
+.habite .palco::after {
+  background: linear-gradient(270deg, rgba(7, 7, 11, .6) 0%, rgba(7, 7, 11, .26) 30%, rgba(7, 7, 11, 0) 50%);
+}
+
+.habite .cartaoAbertura,
+.habite .cartao,
+.habite .fecho {
+  margin-left: auto;
+  margin-right: max(16px, calc((100% - 1120px) / 2 + 16px));
+}
+
+.noite {
+  opacity: var(--noite);
+}
+
+.numero {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: clamp(40px, 3.6vw, 52px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.numero small {
+  margin-left: 6px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--paper-dim);
+}
+
+/* No computador as marcas mostram o prédio na cena; a miniatura é só para as telas em pé. */
+.miniatura {
+  display: none;
+}
+
+.fecho {
+  width: min(560px, calc(100% - 32px));
+  margin: 0 0 0 max(16px, calc((100% - 1120px) / 2 + 16px));
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4.2vw, 60px);
+  line-height: 1.02;
+  letter-spacing: -.01em;
+  text-wrap: balance;
+  text-shadow: 0 2px 22px rgba(7, 7, 11, .9);
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .marca[data-fora] {
+    display: none;
+  }
+
+  .miniatura {
+    display: block;
+    position: relative;
+    float: right;
+    width: 34%;
+    aspect-ratio: 4 / 3;
+    margin: 0 0 var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+
+  .miniatura img {
+    object-fit: cover;
+  }
+
+  .habite .cartaoAbertura,
+  .habite .cartao,
+  .habite .fecho {
+    margin-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .fecho {
+    width: auto;
+    font-size: clamp(32px, 8.6vw, 44px);
+    text-shadow: none;
+  }
+}

@@ -2,12 +2,10 @@
 
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
-import noite from '@/assets/sao-paulo-2080-noite.jpg';
-import noiteRetrato from '@/assets/sao-paulo-2080-noite-retrato.jpg';
-import porDoSol from '@/assets/sao-paulo-2080-por-do-sol.jpg';
-import porDoSolRetrato from '@/assets/sao-paulo-2080-por-do-sol-retrato.jpg';
+import megacidade from '@/assets/megacidade.jpg';
+import megacidadeRetrato from '@/assets/megacidade-retrato.jpg';
 import { copy } from '@/content/copy.pt-BR';
-import { dayNight, heroProgress, smoothstep } from '@/lib/daynight';
+import { heroProgress, smoothstep } from '@/lib/daynight';
 import { Meta } from './Meta';
 import { TallSource } from './TallSource';
 import styles from './Hero.module.css';
@@ -17,10 +15,12 @@ import styles from './Hero.module.css';
 const SIZES = '(max-aspect-ratio: 49/25) 202vh, 106vw';
 const SIZES_EM_PE = '(max-aspect-ratio: 4/5) 87vh, 106vw';
 
+/** Abertura, ato 1 (Imagine): a Megacidade que a ficção sonhou, e o caminho do site no título. */
 export function Hero() {
+  const t = copy.imagine;
   const ref = useRef<HTMLElement>(null);
 
-  // O scroll leva a cena do pôr do sol à noite; o ponteiro dá um parallax leve.
+  // Rolando, a cidade se aproxima e escurece até virar o fundo da frase; o ponteiro dá um parallax leve.
   useEffect(() => {
     const hero = ref.current;
     if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -29,11 +29,7 @@ export function Hero() {
     const update = () => {
       frame = 0;
       const r = hero.getBoundingClientRect();
-      const p = heroProgress(r.top, r.height);
-      const { night, glow } = dayNight(p);
-      hero.style.setProperty('--p', smoothstep(p).toFixed(4));
-      hero.style.setProperty('--night', night.toFixed(3));
-      hero.style.setProperty('--glow', glow.toFixed(3));
+      hero.style.setProperty('--p', smoothstep(heroProgress(r.top, r.height)).toFixed(4));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -60,10 +56,10 @@ export function Hero() {
       <div className={styles.art}>
         <div className={styles.stack}>
           <picture className="fill-picture">
-            <TallSource src={porDoSolRetrato} sizes={SIZES_EM_PE} />
+            <TallSource src={megacidadeRetrato} sizes={SIZES_EM_PE} />
             <Image
-              src={porDoSol}
-              alt={copy.hero.alt}
+              src={megacidade}
+              alt={t.alt}
               fill
               sizes={SIZES}
               quality={85}
@@ -73,35 +69,25 @@ export function Hero() {
               className={styles.img}
             />
           </picture>
-          <picture className="fill-picture">
-            <TallSource src={noiteRetrato} sizes={SIZES_EM_PE} />
-            <Image
-              src={noite}
-              alt=""
-              aria-hidden="true"
-              fill
-              sizes={SIZES}
-              quality={85}
-              fetchPriority="low"
-              className={`${styles.img} ${styles.night}`}
-            />
-          </picture>
         </div>
       </div>
-      <div className={styles.dusk} aria-hidden="true" />
-      <div className={styles.glow} aria-hidden="true" />
+      <div className={styles.shade} aria-hidden="true" />
       <div className={styles.fade} aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
       <div className={styles.copy}>
-        <h1 className="headline" id="hero-titulo">
-          {copy.hero.titulo.map((word, i) => (
-            <span key={word}>
-              {i > 0 && ' '}
-              <span className={styles.word}>{word}</span>
+        <h1 className={styles.titulo} id="hero-titulo">
+          {t.titulo.map((item, i) => (
+            <span key={item.verbo} className={styles.linha} data-agora={i === 0 || undefined}>
+              <span className={styles.n} aria-hidden="true">
+                {item.n}
+              </span>
+              <span className={styles.word}>{item.verbo}</span>
+              {i < t.titulo.length - 1 && ' '}
             </span>
           ))}
         </h1>
-        <Meta items={copy.hero.meta} className={styles.meta} />
+        <p className={styles.apoio}>{t.apoio}</p>
+        <Meta items={t.meta} className={styles.meta} />
       </div>
     </section>
   );

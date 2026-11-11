@@ -1,4 +1,4 @@
-// Todos os textos do site. O conteúdo segue o roteiro "São Paulo 2080: roteiro da landing".
+// Todos os textos do site. O conteúdo segue o documento "arqATLAS · novo conceito e roteiro" (conceito A, Do sonho à casa).
 
 export type Selo = 'existe' | '2080';
 
@@ -43,6 +43,35 @@ export interface Ponto {
   x: number;
   y: number;
   capitulo?: Capitulo['id'];
+}
+
+/** Um ponto numa ilustração, em % da largura e da altura: na imagem larga e no recorte em pé. */
+export interface Marca {
+  largo: { x: number; y: number };
+  /** Sem `emPe`, o ponto fica fora do recorte em pé e só aparece no cartão. */
+  emPe?: { x: number; y: number };
+}
+
+/** Nota do ato Projete: uma parte da Torre-ícone e o prédio real que já faz aquilo. */
+export interface Nota {
+  n: string;
+  titulo: string;
+  rotulo: string;
+  texto: string;
+  fonte: Fonte;
+  marca: Marca;
+}
+
+/** Cartão do ato Habite: um prédio de São Paulo e o número que ele carrega. */
+export interface Morada {
+  id: Capitulo['id'];
+  predio: string;
+  assinatura: string;
+  numero: string;
+  unidade: string;
+  texto: string;
+  fonte: Fonte;
+  marca: Marca;
 }
 
 const capitulos: Capitulo[] = [
@@ -205,17 +234,114 @@ export const copy = {
     voltar: 'arqATLAS, voltar ao topo',
     rotulo: 'Seções',
     links: [
-      { label: 'Capítulos', href: '#capitulos' },
-      { label: 'Mapa', href: '#mapa' },
-      { label: 'Perguntas', href: '#perguntas' },
+      { label: 'Imagine', href: '#top' },
+      { label: 'Projete', href: '#projete' },
+      { label: 'Habite', href: '#habite' },
     ],
     cta: { label: 'Receber o atlas', href: '#receber' },
   },
-  ticker: ['3 prédios reais', '1 cidade em 2080', 'Copan', 'MASP', 'Ponte Estaiada', 'Um capítulo por vez'],
+  ticker: ['Imagine', 'Projete', 'Habite', 'Da ficção a São Paulo', 'Um atlas ilustrado', 'Um capítulo por vez'],
   hero: {
     titulo: ['Imagine.', 'Projete.', 'Habite.'],
     meta: ['São Paulo 2080', 'Um atlas ilustrado', '3 prédios reais'],
     alt: 'Ilustração em estilo anime dos anos 90: São Paulo em 2080 ao pôr do sol, com o Copan à esquerda, o MASP suspenso nos pórticos vermelhos, a Ponte Estaiada com um monotrilho e o sol se pondo atrás do mastro em X, ipês rosa e gente na praça.',
+  },
+  imagine: {
+    numero: '01',
+    eyebrow: 'Imagine',
+    titulo: [
+      { n: '01', verbo: 'Imagine.' },
+      { n: '02', verbo: 'Projete.' },
+      { n: '03', verbo: 'Habite.' },
+    ],
+    apoio: 'Como uma cidade sai da imaginação e vira lugar para morar.',
+    meta: ['Da ficção a São Paulo', 'Um atlas ilustrado', 'Um capítulo por vez'],
+    alt: 'Ilustração em estilo anime dos anos 90: uma megacidade futurista de céu azul, com torre de TV, um letreiro em japonês que diz Neo-Tóquio, um monotrilho fazendo a curva entre os prédios, carros voando, um monólito roxo sem janelas e um sol vermelho.',
+  },
+  projete: {
+    numero: '02',
+    eyebrow: 'Projete',
+    titulo: { texto: 'Uma ideia vira projeto quando resolve um problema.', destaque: 'projeto' },
+    lead: 'A Torre-ícone é imaginada, mas cada parte dela já existe em algum lugar do mundo.',
+    alt: 'Ilustração da Torre-ícone: uma torre torcida com estrutura em diagonal, uma floresta e uma cachoeira no miolo, terraços com jardim e um anel no topo, no meio de uma cidade com monotrilho.',
+    altDesenho: 'A mesma torre como desenho técnico: só as linhas, claras sobre fundo escuro.',
+    notas: [
+      {
+        n: '01',
+        titulo: 'Estrutura em diagonal',
+        rotulo: 'Malha diagonal',
+        texto: 'Na Hearst Tower, em Nova York (2006), a malha em diagonal usa cerca de 20% menos aço que uma estrutura comum.',
+        fonte: { nome: 'Thornton Tomasetti', url: 'https://thorntontomasetti.com/project/hearst-tower' },
+        marca: { largo: { x: 58.8, y: 72 }, emPe: { x: 40, y: 72 } },
+      },
+      {
+        n: '02',
+        titulo: 'A torção',
+        rotulo: 'Torção',
+        texto: 'A Shanghai Tower (632 m, 2015) gira 120 graus enquanto sobe, e isso reduz em 24% a força do vento sobre ela.',
+        fonte: { nome: 'Architectural Record', url: 'https://www.architecturalrecord.com/articles/10084-shanghai-tower' },
+        marca: { largo: { x: 67.6, y: 23 }, emPe: { x: 61, y: 23 } },
+      },
+      {
+        n: '03',
+        titulo: 'Cachoeira',
+        rotulo: 'Cachoeira',
+        texto: 'Em Singapura, a HSBC Rain Vortex cai 40 metros dentro do Jewel Changi. É a cachoeira interna mais alta do mundo.',
+        fonte: { nome: 'HSBC', url: 'https://www.about.hsbc.com.sg/news-and-media/the-hsbc-rain-vortex-is-ready-to-dazzle-visitors-at-jewel' },
+        marca: { largo: { x: 62.2, y: 58 }, emPe: { x: 48, y: 58 } },
+      },
+      {
+        n: '04',
+        titulo: 'Floresta no miolo',
+        rotulo: 'Floresta',
+        texto: 'Mais de 700 árvores já moram nas fachadas de duas torres de Milão, o Bosco Verticale, concluído em 2014.',
+        fonte: { nome: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Bosco_Verticale' },
+        marca: { largo: { x: 63.4, y: 44 }, emPe: { x: 51, y: 44 } },
+      },
+    ] satisfies Nota[],
+  },
+  habite: {
+    numero: '03',
+    eyebrow: 'Habite',
+    titulo: { texto: 'Uma cidade só fica pronta quando alguém mora nela.', destaque: 'pronta' },
+    lead: 'Os prédios mais futuristas de São Paulo foram desenhados há décadas. O que fez deles futuro foi a cidade que passou a viver neles.',
+    alt: 'São Paulo ilustrada ao pôr do sol, com o Copan, o MASP e a Ponte Estaiada, que escurece até a noite com as janelas acesas.',
+    fecho: 'As janelas acendem. Alguém chegou em casa.',
+    moradas: [
+      {
+        id: 'copan',
+        predio: 'Copan',
+        assinatura: 'Oscar Niemeyer · 1951',
+        numero: '1.160',
+        unidade: 'apartamentos',
+        texto: 'Uma onda de concreto no centro, desenhada em 1951, com lojas abertas para a rua no térreo.',
+        fonte: { nome: 'Assembleia Legislativa de SP', url: 'https://www.al.sp.gov.br/noticia/?id=313140' },
+        marca: { largo: { x: 18.8, y: 42.5 } },
+      },
+      {
+        id: 'masp',
+        predio: 'MASP',
+        assinatura: 'Lina Bo Bardi · 1968',
+        numero: '74',
+        unidade: 'metros de vão livre',
+        texto: 'O museu fica suspenso sobre quatro pilares, e a praça embaixo dele é da cidade.',
+        fonte: {
+          nome: 'Correio Braziliense',
+          url: 'https://www.correiobraziliense.com.br/cbradar/como-foi-construido-o-vao-livre-do-masp/',
+        },
+        marca: { largo: { x: 39.6, y: 61 }, emPe: { x: 10.5, y: 61 } },
+      },
+      {
+        id: 'ponte',
+        predio: 'Ponte Estaiada',
+        assinatura: 'Rio Pinheiros · 2008',
+        numero: '138',
+        unidade: 'metros de mastro em X',
+        texto: 'Duas pistas curvas penduradas num mastro só, sobre o rio Pinheiros.',
+        fonte: { nome: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Oct%C3%A1vio_Frias_de_Oliveira_Bridge' },
+        marca: { largo: { x: 63.8, y: 44.8 }, emPe: { x: 67.1, y: 44.8 } },
+      },
+    ] satisfies Morada[],
   },
   manifesto: {
     rotulo: 'Manifesto',
