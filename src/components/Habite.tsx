@@ -37,9 +37,15 @@ export function Habite() {
   const palco = useRef<HTMLDivElement>(null);
   const notas = useRef<HTMLOListElement>(null);
 
-  const ativo = useCena({ cena: trilho, palco, notas }, QUADRO.habite, (p) => {
-    secao.current?.style.setProperty('--noite', noiteHabite(p).toFixed(3));
-  });
+  // em pé, os cartões passam embaixo do palco para não cobrir os prédios
+  const ativo = useCena(
+    { cena: trilho, palco, notas },
+    QUADRO.habite,
+    (p) => {
+      secao.current?.style.setProperty('--noite', noiteHabite(p).toFixed(3));
+    },
+    true,
+  );
 
   return (
     <section id="habite" className={styles.habite} ref={secao} aria-labelledby="habite-titulo">

@@ -3,7 +3,7 @@
 import { type RefObject, useEffect, useRef, useState } from 'react';
 import { passoDaVez, progressoCena } from '@/lib/cena';
 
-/** Telas em pé: o palco fica no topo e os cartões passam embaixo dele (a mesma regra do CSS). */
+/** Telas em pé: a ilustração vira o recorte vertical (a mesma regra do CSS). */
 export const EM_PE = '(max-aspect-ratio: 1/1)';
 
 interface Partes {
@@ -13,11 +13,17 @@ interface Partes {
 }
 
 /**
- * Cena fixada: o palco fica parado enquanto os cartões rolam por cima (computador) ou embaixo dele
- * (em pé). A cada quadro de rolagem chama `aoMover` com o progresso de 0 a 1 e devolve o cartão da vez.
+ * Cena fixada: o palco fica parado enquanto os cartões rolam por cima dele. Com `embaixoEmPe`, nas telas
+ * em pé o palco fica no topo e os cartões passam embaixo (Habite). A cada quadro de rolagem chama
+ * `aoMover` com o progresso de 0 a 1 e devolve o cartão da vez.
  * Com `?quadro` na URL o progresso fica parado em `quadro` (quadros de estilo e fotos do README).
  */
-export function useCena({ cena, palco, notas }: Partes, quadro: number, aoMover: (p: number) => void): number {
+export function useCena(
+  { cena, palco, notas }: Partes,
+  quadro: number,
+  aoMover: (p: number) => void,
+  embaixoEmPe = false,
+): number {
   const [ativo, setAtivo] = useState(-1);
   const mover = useRef(aoMover);
 
@@ -40,8 +46,8 @@ export function useCena({ cena, palco, notas }: Partes, quadro: number, aoMover:
       const r = c.getBoundingClientRect();
       const menu = parseFloat(getComputedStyle(pc).top) || 0;
       const p = parado ? quadro : reduz.matches ? 1 : progressoCena(r.top, r.height, pc.offsetHeight, menu);
-      // a linha de leitura: logo abaixo do palco (em pé) ou a 60% da tela
-      const linha = emPe.matches ? pc.getBoundingClientRect().bottom + 48 : window.innerHeight * 0.6;
+      // a linha de leitura: logo abaixo do palco (cartões embaixo dele) ou a 60% da tela
+      const linha = embaixoEmPe && emPe.matches ? pc.getBoundingClientRect().bottom + 48 : window.innerHeight * 0.6;
       const topos = Array.from(n.children, (li) => (li.firstElementChild ?? li).getBoundingClientRect().top);
       setAtivo(passoDaVez(topos, linha));
       mover.current(p);
@@ -62,7 +68,7 @@ export function useCena({ cena, palco, notas }: Partes, quadro: number, aoMover:
       emPe.removeEventListener('change', agendar);
       reduz.removeEventListener('change', agendar);
     };
-  }, [cena, palco, notas, quadro]);
+  }, [cena, palco, notas, quadro, embaixoEmPe]);
 
   return ativo;
 }

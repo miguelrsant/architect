@@ -78,20 +78,28 @@ test('celular: o mapa da Megacidade cabe na tela e a lista acende o ponto da vez
   await expect(telao).not.toHaveAttribute('aria-current');
 });
 
-test('celular: a Torre fica no topo, desenhando, e os cartões passam embaixo dela', async ({ page }) => {
+test('celular: a Torre ocupa a tela e os cartões sobem por cima dela, como no computador', async ({ page }) => {
   await page.goto('/');
   const secao = page.locator('#projete');
-  // o cartão da torção logo abaixo do palco (que fica a 60 px do topo, embaixo do menu)
-  await secao.locator('ol > li:nth-child(3) article').evaluate((el) => {
-    const palco = document.querySelector<HTMLElement>('#projete > div > div:nth-child(2)')!;
-    window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - (60 + palco.offsetHeight + 20), behavior: 'instant' });
-  });
+  const cartao = secao.locator('ol > li:nth-child(3) article');
+  // o cartão da torção acima da linha de leitura (60% da tela), por cima do desenho
+  await cartao.evaluate((el) =>
+    window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - window.innerHeight * 0.4, behavior: 'instant' }),
+  );
   await expect(secao).toHaveAttribute('data-modo', 'desenho', { timeout: 20_000 });
   const palco = secao.locator('> div > div:nth-child(2)');
-  const [p, cartao] = await Promise.all([palco.boundingBox(), secao.locator('ol > li:nth-child(3) article').boundingBox()]);
+  const [p, c] = await Promise.all([palco.boundingBox(), cartao.boundingBox()]);
   expect(Math.round(p!.y)).toBe(60); // encostado embaixo do menu
-  expect(cartao!.y).toBeGreaterThanOrEqual(p!.y + p!.height); // o cartão passa embaixo do palco, sem cobrir a torre
+  expect(Math.round(p!.y + p!.height)).toBe(page.viewportSize()!.height); // e até o pé da tela
+  expect(c!.y).toBeGreaterThan(p!.y); // o cartão passa por cima do desenho
+  expect(c!.y + c!.height).toBeLessThan(p!.y + p!.height);
   await expect(secao.locator('ol > li:nth-child(3)')).toHaveAttribute('aria-current', 'true');
+  // só a marca da vez aparece, e o traço sai na resolução da tela (mais que 2x)
+  await expect(secao.locator('[data-ativa]')).toContainText('Torção');
+  await expect(secao.locator('[data-ativa]')).toHaveCSS('opacity', '1');
+  await expect(secao.locator('span[aria-hidden]:not([data-ativa])').first()).toHaveCSS('opacity', '0');
+  const nitidez = await secao.locator('canvas').evaluate((c: HTMLCanvasElement) => c.width / c.clientWidth);
+  expect(nitidez).toBeGreaterThan(2.5);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
 

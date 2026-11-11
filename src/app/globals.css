@@ -52,6 +52,42 @@ img {
   color: var(--night-000);
 }
 
+/* Barra de rolagem: o trilho na cor da noite e uma pílula fina do rosa do destaque ao lilás da ficção,
+   que engorda ao passar o mouse. Chrome, Edge e Safari usam os pseudo-elementos; o Firefox, as
+   propriedades padrão (só cor, sem degradê). No celular fica a barra do sistema, que some sozinha. */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-color: var(--accent-pink) var(--night-000);
+    scrollbar-width: thin;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: var(--night-000);
+}
+
+::-webkit-scrollbar-thumb {
+  min-height: 56px;
+  border: 4px solid var(--night-000);
+  border-radius: 999px;
+  background: linear-gradient(var(--accent-pink), var(--future)) padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  border-width: 3px;
+}
+
+::-webkit-scrollbar-thumb:active {
+  border-width: 2px;
+  background: var(--accent-pink) padding-box;
+}
+
 section[id],
 article[id] {
   scroll-margin-top: calc(var(--nav-h) + 12px);

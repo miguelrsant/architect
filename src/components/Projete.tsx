@@ -18,9 +18,9 @@ import { TallSource } from './TallSource';
 import { EM_PE, useCena } from './useCena';
 import styles from './Cena.module.css';
 
-// Computador: a capa cobre o palco (tela menos o menu). Em pé: 3:4, até 58% da altura da tela.
+// A capa cobre o palco (tela menos o menu): a larga no computador, o recorte 3:4 em pé (pela altura).
 const SIZES = '(max-aspect-ratio: 2560/1429) calc((100vh - 60px) * 1.8), 100vw';
-const SIZES_EM_PE = '(max-aspect-ratio: 87/200) 100vw, 44vh';
+const SIZES_EM_PE = '(max-aspect-ratio: 3/4) calc((100vh - 60px) * 0.75), 100vw';
 /** Largura da arte na escala em que o nanquim tem ~2 px: a imagem larga e o recorte em pé. */
 const ARTE = { largo: 2560, emPe: 1072 };
 
@@ -138,7 +138,8 @@ export function Projete() {
         <div className={styles.palco} ref={palco}>
           <div className={styles.capa}>
             <picture className="fill-picture">
-              <TallSource src={torreRetrato} sizes={SIZES_EM_PE} />
+              {/* 85: o traço sai desta imagem, e com 75 a compressão vira ruído no desenho */}
+              <TallSource src={torreRetrato} sizes={SIZES_EM_PE} quality={85} />
               <Image ref={arte} src={torre} alt={t.alt} fill sizes={SIZES} quality={85} className={styles.arte} />
             </picture>
             <canvas ref={tela} className={styles.tela} aria-hidden="true" />

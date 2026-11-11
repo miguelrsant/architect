@@ -130,8 +130,8 @@ export function criarTraco(canvas: HTMLCanvasElement, imagens: Imagens, larguraD
   let ultimo = { desenho: -1, cor: -1 };
   const traco: Traco = {
     ajustar() {
-      // até 2x a tela, e nunca mais pixels que a própria ilustração
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // até 3x a tela (o traço fica nítido no celular), e nunca mais pixels que a própria ilustração
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
       const w = Math.max(1, Math.min(Math.round(canvas.clientWidth * dpr), imagens.arte.naturalWidth));
       const h = Math.max(1, Math.round((w * canvas.clientHeight) / Math.max(1, canvas.clientWidth)));
       if (canvas.width !== w || canvas.height !== h) {
